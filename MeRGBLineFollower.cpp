@@ -124,7 +124,7 @@ MeRGBLineFollower::MeRGBLineFollower(uint8_t port, uint8_t address) : MePort(por
 
   Device_Address = RGBLINEFOLLOWER_DEFAULT_ADDRESS + address;
 }
-#else  // ME_PORT_DEFINED
+#else
 /**
  * Alternate Constructor which can call your own function to map the AD0 and INT to arduino port,
  * no pins are used or initialized here

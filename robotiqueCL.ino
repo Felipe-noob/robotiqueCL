@@ -6,31 +6,38 @@
  * 
  */
 
-
 // arduino mega
 
 #include "Motors.h"
 #include "Encoders.h"
+#include "MeRGBLineFollower.h"
 
 #define DT 50 //sampling period in milliseconds
 
+uint8_t AD0 = 0;
+uint8_t INT = 0;
+uint8_t Address = 0;
+
+MeRGBLineFollower RGBLineFollower(AD0, INT, Address);
 
 void setup() {
   
  InitMotors();
- 
  InitEncoders();
  
  // initialization of the serial communication.
  Serial.begin(9600);
  Serial.setTimeout(10);
+
+ RGBLineFollower.begin();
+ RGBLineFollower.setKp(0.3);
 }
 
 
 void loop() {
   // Main loop
 
-  static int ref = 0; // reference signal
+  static int ref = 500; // reference signal
   
   int u = ref; // control signal
   
@@ -41,10 +48,16 @@ void loop() {
   setMotorAVoltage(u);
 
   // send some values via serial ports (in ascii format)
+
+  RGBLineFollower.loop(); 
+  const int offset = RGBLineFollower.getPositionOffset();
+  
   Serial.print(position1);
   Serial.print(",");
   Serial.print(u);
   Serial.print(",");
+  Serial.print(offset);
+  Serial.print(" ,");
   Serial.println(millis());
 
   // get the new reference from the serial port is any.
