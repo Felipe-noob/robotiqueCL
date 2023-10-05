@@ -1,28 +1,63 @@
+/*
+ * Main file
+ * 
+ * apply a duty cycle of 255/ref to the motor1 (PWM) where ref is a value obtained from the serial port (in ascii format) 
+ * send back the actual position of the motor shaft (in pulses).
+ * 
+ */
+
+
+// arduino mega
+
 #include "Motors.h"
+#include "Encoders.h"
 
-#include "MeRGBLineFollower.h"
+#define DT 50 //sampling period in milliseconds
 
-void InitMotors()
-{
- pinMode(BI1,OUTPUT);
- pinMode(BI2,OUTPUT);
- pinMode(PWM,OUTPUT);
 
+void setup() {
+  
+ InitMotors();
+ 
+ InitEncoders();
+ 
+ // initialization of the serial communication.
+ Serial.begin(9600);
+ Serial.setTimeout(10);
 }
 
 
-// fonction permettant de gerer l'alimentation moteur (sens et amplitude)
-void setMotorAVoltage(int valeur)
+void loop() {
+  // Main loop
+
+  static int ref = 0; // reference signal
+  
+  int u = ref; // control signal
+  
+  waitNextPeriod();
+  
+  int position1 = getPosition1();  
+  
+  setMotorAVoltage(u);
+
+  // send some values via serial ports (in ascii format)
+  Serial.print(position1);
+  Serial.print(",");
+  Serial.print(u);
+  Serial.print(",");
+  Serial.println(millis());
+
+  // get the new reference from the serial port is any.
+  if(Serial.available()>1) // something to read ?
+    ref=Serial.parseInt(); // parse the value (ascii -> int)
+}
+
+
+void waitNextPeriod() 
 {
-  if(valeur<0)
-  {
-    digitalWrite(BI1,1);
-    digitalWrite(BI2,0);
-  }
-  else
-   {
-    digitalWrite(BI1,0);
-    digitalWrite(BI2,1);
-  }
-  analogWrite(PWM,constrain(abs(valeur),0,MAXPWM));
+  static long LastMillis=0; 
+  long timeToWait = DT - ( millis() - LastMillis) ;
+  if(timeToWait>0)
+    delay(timeToWait);
+  LastMillis=millis();
 }
