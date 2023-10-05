@@ -37,7 +37,7 @@ void loop()
 
   int position1 = getPosition1();
   u = 50;
-  setRightMotorAVoltage(u);
+  setRightMotorAVoltage(-u);
   setLeftMotorAVoltage(u);
 
   // send some values via serial ports (in ascii format)

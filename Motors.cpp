@@ -1,6 +1,5 @@
 #include "Motors.h"
-#include "MeRGBLineFollower.h"
-
+#include <Arduino.h>
 void InitMotors()
 {
   // Left Motor
@@ -26,7 +25,7 @@ void setLeftMotorAVoltage(int valeur)
     digitalWrite(BI1m1, 0);
     digitalWrite(BI2m1, 1);
   }
-  analogWrite(PWM, constrain(abs(valeur), 0, MAXPWM));
+  analogWrite(PWMm1, constrain(abs(valeur), 0, MAXPWM));
 }
 // Function for right motor
 void setRightMotorAVoltage(int valeur)
@@ -41,5 +40,5 @@ void setRightMotorAVoltage(int valeur)
     digitalWrite(BI1m2, 0);
     digitalWrite(BI2m2, 1);
   }
-  analogWrite(PWM, constrain(abs(valeur), 0, MAXPWM));
+  analogWrite(PWMm2, constrain(abs(valeur), 0, MAXPWM));
 }

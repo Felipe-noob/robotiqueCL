@@ -11,4 +11,7 @@
 
 void InitMotors();
 
-void setMotorAVoltage(int value);
+void setRightMotorAVoltage(int value);
+
+
+void setLeftMotorAVoltage(int value);
