@@ -15,7 +15,7 @@
 #include "Encoders.h"
 
 MeRGBLineFollower RGBLineFollower(PORT_7,1);
-int16_t offset = 0;
+double offset = 0;
 
 #define DT 50 // sampling period in milliseconds
 
@@ -42,7 +42,8 @@ void setup()
 void loop()
 {
   // Main loop
-
+  // If offset > 0, line is going to the right. car must go to the right
+  // Else, line is going to the left. car must go to the left
   RGBLineFollower.loop();
   offset = RGBLineFollower.getPositionOffset();
   Serial.println(offset);
@@ -54,16 +55,17 @@ void loop()
   waitNextPeriod();
 
   int position1 = getPosition1();
-  u = 10;
-  setRightMotorAVoltage(-20);
-  setLeftMotorAVoltage(u);
+  u = 30;
+  float testRatio = 30/25;
+  setRightMotorAVoltage(-(testRatio * (u - offset/10)));
+  setLeftMotorAVoltage(u + offset/10);
 
   // send some values via serial ports (in ascii format)
-  Serial.print(position1);
-  Serial.print(",");
-  Serial.print(u);
-  Serial.print(",");
-  Serial.print(millis());
+//  Serial.print(position1);
+//  Serial.print(",");
+//  Serial.print(u);
+//  Serial.print(",");
+//  Serial.print(millis());
 
   // get the new reference from the serial port is any.
   if (Serial.available() > 1) // something to read ?
