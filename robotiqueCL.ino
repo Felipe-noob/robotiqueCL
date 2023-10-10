@@ -8,10 +8,18 @@
 
 // arduino mega
 
+
+#include <MeMegaPi.h>
+#include <MeRGBLineFollower.h>
 #include "Motors.h"
 #include "Encoders.h"
 
+MeRGBLineFollower RGBLineFollower(PORT_7,1);
+int16_t offset = 0;
+
 #define DT 50 // sampling period in milliseconds
+
+
 
 void setup()
 {
@@ -19,16 +27,26 @@ void setup()
   InitMotors();
 
   InitEncoders();
+  RGBLineFollower.begin();
 
+  // Setting line following sensitivity, which is used for adjusting line following response speed. The larger the value is,more sensitive it turns.
+  RGBLineFollower.setKp(0.3);
+
+  
   // initialization of the serial communication.
   Serial.begin(9600);
   Serial.setTimeout(10);
+
 }
 
 void loop()
 {
   // Main loop
 
+  RGBLineFollower.loop();
+  offset = RGBLineFollower.getPositionOffset();
+  Serial.println(offset);
+  
   static int ref = 0; // reference signal
 
   int u = ref; // control signal
@@ -36,8 +54,8 @@ void loop()
   waitNextPeriod();
 
   int position1 = getPosition1();
-  u = 50;
-  setRightMotorAVoltage(-u);
+  u = 10;
+  setRightMotorAVoltage(-20);
   setLeftMotorAVoltage(u);
 
   // send some values via serial ports (in ascii format)
