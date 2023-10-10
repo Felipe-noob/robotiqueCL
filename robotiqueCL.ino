@@ -11,11 +11,13 @@
 
 #include <MeMegaPi.h>
 #include <MeRGBLineFollower.h>
+
 #include "Motors.h"
 #include "Encoders.h"
 
 MeRGBLineFollower RGBLineFollower(PORT_7,1);
-double offset = 0;
+MeUltrasonicSensor ultraSensorFront(PORT_8);
+int16_t offset = 0;
 
 #define DT 50 // sampling period in milliseconds
 
@@ -42,11 +44,11 @@ void setup()
 void loop()
 {
   // Main loop
-  // If offset > 0, line is going to the right. car must go to the right
+  // If offset > 0, line is going to the right. car must go to the right (Increase in speed on left and/or decrease of right)
   // Else, line is going to the left. car must go to the left
   RGBLineFollower.loop();
   offset = RGBLineFollower.getPositionOffset();
-  Serial.println(offset);
+  // Serial.println(offset);
   
   static int ref = 0; // reference signal
 
@@ -66,6 +68,11 @@ void loop()
 //  Serial.print(u);
 //  Serial.print(",");
 //  Serial.print(millis());
+
+  Serial.print("Distance:");
+  Serial.print(ultraSensorFront.distanceCm());
+  Serial.println(" cm");
+
 
   // get the new reference from the serial port is any.
   if (Serial.available() > 1) // something to read ?
