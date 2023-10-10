@@ -7,7 +7,7 @@
 #define BI1m2 36
 #define BI2m2 37
 
-#define MAXPWM 190 // maximum duty cycle for the PWM is 255/MAXPWM
+#define MAXPWM 255 // maximum duty cycle for the PWM is 255/MAXPWM
 
 void InitMotors();
 

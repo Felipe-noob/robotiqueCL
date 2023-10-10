@@ -10,7 +10,7 @@
 
 
 #include <MeMegaPi.h>
-#include <MeRGBLineFollower.h>
+#include "MeRGBLineFollower.h"
 #include "Motors.h"
 #include "Encoders.h"
 
@@ -55,7 +55,7 @@ void loop()
 
   int position1 = getPosition1();
   u = 10;
-  setRightMotorAVoltage(-20);
+  setRightMotorAVoltage(-100);
   setLeftMotorAVoltage(u);
 
   // send some values via serial ports (in ascii format)
