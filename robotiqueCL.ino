@@ -51,19 +51,8 @@ void loop()
   
   int u = pid(offset, DT);
 
-  
-
-  // int position1 = getPosition1();
-  u = 10;
-  setRightMotorAVoltage(-100);
-  setLeftMotorAVoltage(u);
-
-  // send some values via serial ports (in ascii format)
-  Serial.print(",");
-  Serial.print(u);
-  Serial.print(",");
-  Serial.print(millis());
-  Serial.println(offset);
+  setRightMotorAVoltage(BASE_SPEED - u);
+  setLeftMotorAVoltage(BASE_SPEED + u);
 
   // get the new reference from the serial port is any.
   // if (Serial.available() > 1) // something to read ?
