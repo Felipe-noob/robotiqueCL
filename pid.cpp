@@ -1,10 +1,10 @@
 
 #include <Arduino.h>
-
-#define K 0.5
-#define Kp 1
-#define Ki 1
-#define Kd 0.5
+#include "pid.h"
+// #define K 0.5
+// #define Kp 1
+// #define Ki 1
+// #define Kd 0.5
 
 #define MAXPWM 255 // maximum duty cycle for the PWM is 255/MAXPWM
 
@@ -14,7 +14,12 @@ volatile int I = 0;
 
 int pid(int offset, int DT) 
 {
+  // const int deadbandOffset = 40;
   const int P = Kp * offset;
+
+  if (abs(offset) <= deadbandOffset) {
+    offset = 0;
+  }
   I += Ki * (offset + offset_prev) * DT / 2000;
   // antiwindup
   if (I > MAXPWM) {
@@ -28,16 +33,16 @@ int pid(int offset, int DT)
 
   offset_prev = offset;
 
-  Serial.print(offset);
-  Serial.print(",");
-  Serial.print(P);
-  Serial.print(",");
-  Serial.print(I);
-  Serial.print(",");
-  Serial.print(D);
-  Serial.print(",");
-  Serial.print(K * ( P + I + D));
-  Serial.print("\n");
+  Serial.println(offset);
+  // Serial.print(",");
+  // Serial.print(P);
+  // Serial.print(",");
+  // Serial.print(I);
+  // Serial.print(",");
+  // Serial.print(D);
+  // Serial.print(",");
+  // Serial.print(K * ( P + I + D));
+  // Serial.print("\n");
 
   return K * ( P + I + D);
 }

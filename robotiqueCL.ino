@@ -15,7 +15,7 @@
 #include "Encoders.h"
 #include "pid.h"
 
-MeRGBLineFollower RGBLineFollower(PORT_7,1);
+MeRGBLineFollower RGBLineFollower(PORT_8,1);
 int16_t offset = 0;
 
 #define DT 50 // sampling period in milliseconds
@@ -48,11 +48,11 @@ void loop()
   // TODO: look up the docs
   RGBLineFollower.loop();
   offset = RGBLineFollower.getPositionOffset();
-  
+   
   int u = pid(offset, DT);
-
-  setRightMotorAVoltage(BASE_SPEED - u);
-  setLeftMotorAVoltage(BASE_SPEED + u);
+  // Serial.println(offset);
+  setRightMotorAVoltage(- (BASE_SPEED - u));
+  setLeftMotorAVoltage(BASE_SPEED + u );
 
   // get the new reference from the serial port is any.
   // if (Serial.available() > 1) // something to read ?
