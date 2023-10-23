@@ -33,7 +33,7 @@ int pid(int offset, int DT)
 
   offset_prev = offset;
 
-  Serial.println(offset);
+  // Serial.println(offset);
   // Serial.print(",");
   // Serial.print(P);
   // Serial.print(",");
