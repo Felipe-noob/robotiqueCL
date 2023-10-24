@@ -30,11 +30,11 @@ int pid(int offset, int DT, bool flagCurve)
   
   // TODO: is this division too slow?
   const int D = 1000 * Kd_real * (offset - offset_prev) / DT;
-  Serial.print(offset);
-  Serial.print(",");
-  Serial.print(P);
-  Serial.print(",");
-  Serial.println(I);
+  // Serial.print(offset);
+  // Serial.print(",");
+  // Serial.print(P);
+  // Serial.print(",");
+  // Serial.println(I);
 
   offset_prev = offset;
   return K_real * ( P + I + D);

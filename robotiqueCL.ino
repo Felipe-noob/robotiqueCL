@@ -30,6 +30,7 @@ int prevTurn = 0;
 bool flagCurve = false;
 int curveTimeout = 0;
 int curveCooldown = 0;
+int exitTimeout = 0;
 
 void setup()
 {
@@ -57,9 +58,8 @@ void loop()
   // TODO: look up the docs
   RGBLineFollower.loop();
   // int distance = ultraSensor.distanceCm();
-
   const int speed = flagOtherPath 
-  ? 0.8 * BASE_SPEED 
+  ? 0.75 * BASE_SPEED 
   : flagCurve
   ? 40
   : BASE_SPEED;
@@ -72,16 +72,25 @@ void loop()
   } else if (flagOtherPath) {
     // the robot is deviating from the obstacle
     offset = RGBLineFollower.getPositionOffset();
-    
+    const int sensor_state = RGBLineFollower.getPositionState();
+    Serial.print(offset);
+    Serial.print(",");
+    Serial.println(sensor_state);
     // detects the final T curve
-    if (abs(offset) > 300){
-      flagOtherPath = false;
+    if(exitTimeout >0) {
+      setRightMotorAVoltage(-100);
+      setLeftMotorAVoltage(180);
+      exitTimeout--;
     }
-
-    int u = pid(offset, DT, true);
-
-    setRightMotorAVoltage(- (speed - u));
-    setLeftMotorAVoltage(speed + u );
+    if (sensor_state == 0){
+      flagOtherPath = false;
+      exitTimeout = 10;
+    } else {
+      // PID for the U curve
+      int u = pid(offset, DT, false);
+      setRightMotorAVoltage(- (speed - u));
+      setLeftMotorAVoltage(speed + u );
+    }
   } else {
     // no obstacle
     offset = RGBLineFollower.getPositionOffset();
