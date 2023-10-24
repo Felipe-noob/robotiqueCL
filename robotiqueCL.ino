@@ -74,7 +74,7 @@ void loop()
     turnCicles = 10;
     flagCurve = false;
   } else {
-    // straight line
+    // no obstacle
     offset = RGBLineFollower.getPositionOffset();
     
     // detects curves
@@ -88,9 +88,11 @@ void loop()
       curveCooldown--;
       flagCurve = true;
     } else if (curveTimeout == 0 && curveCooldown > 0){
+      // there is a cooldown between curves to avoid a false positive
       flagCurve = false;
       curveCooldown--;
     } else {
+      // regular operation, straight line
       flagCurve = false;
     }
   }
@@ -103,6 +105,7 @@ void loop()
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
     int distance = ultraSensor.distanceCm();
+    Serial.println(distance);
     if (distance <= 27){
       flagObstacle = true;
     }
@@ -114,7 +117,7 @@ void loop()
 
   // debug if there is an obstacle
   // Serial.println(offset);
-  digitalWrite(LEDPIN, flagCurve);
+  digitalWrite(LEDPIN, flagObstacle);
 }
 
 void waitNextPeriod()

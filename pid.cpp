@@ -32,10 +32,5 @@ int pid(int offset, int DT, bool flagCurve)
   const int D = 1000 * Kd_real * (offset - offset_prev) / DT;
 
   offset_prev = offset;
-  Serial.print(offset);
-  Serial.print(",");
-  Serial.print(P);
-  Serial.print(",");
-  Serial.println(Kp_real);
   return K_real * ( P + I + D);
 }
