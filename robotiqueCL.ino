@@ -32,8 +32,8 @@ int curveTimeout = 0;
 int curveCooldown = 0;
 int exitTimeout = 0;
 
-long unsigned int leftTurns = 0;
-long unsigned int rightTurns = 0; 
+int leftTurns = 0;
+int rightTurns = 0; 
 
 void setup()
 {
@@ -70,14 +70,26 @@ void loop()
   ? 40
   : BASE_SPEED;
 
-  const int left = getPosition1();
-  const int right = getPosition2();
-
+  // left,right
+  Serial.print(flagObstacle);
+  Serial.print(",");
+  Serial.print(flagOtherPath);
+  Serial.print(",");
+  Serial.print(leftTurns);
+  Serial.print(",");
+  Serial.print(rightTurns);
+  Serial.print(",");
+  Serial.print(getPosition1());
+  Serial.print(",");
+  Serial.println(getPosition2());
+  
   if (flagObstacle){
     // the is an obstacle
     setRightMotorAVoltage(0);
     setLeftMotorAVoltage(110);
     flagOtherPath = true;    
+    rightTurns = getPosition2();
+    leftTurns = getPosition1();
   } else if (flagOtherPath) {
     // the robot is deviating from the obstacle
     offset = RGBLineFollower.getPositionOffset();

@@ -46,7 +46,7 @@ void ISR_encoder1()
 void ISR_encoder2()
 {
   if (digitalRead(PORT2_NE1)) // detection du sens de rotation
-    position2++;
-  else
     position2--;
+  else
+    position2++;
 }
