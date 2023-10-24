@@ -32,6 +32,9 @@ int curveTimeout = 0;
 int curveCooldown = 0;
 int exitTimeout = 0;
 
+long unsigned int leftTurns = 0;
+long unsigned int rightTurns = 0; 
+
 void setup()
 {
 
@@ -49,7 +52,10 @@ void setup()
 
   // Led obstacle
   pinMode(LEDPIN, OUTPUT);
+
+  InitEncoders();
 }
+
 
 void loop()
 {
@@ -64,6 +70,9 @@ void loop()
   ? 40
   : BASE_SPEED;
 
+  const int left = getPosition1();
+  const int right = getPosition2();
+
   if (flagObstacle){
     // the is an obstacle
     setRightMotorAVoltage(0);
@@ -73,9 +82,6 @@ void loop()
     // the robot is deviating from the obstacle
     offset = RGBLineFollower.getPositionOffset();
     const int sensor_state = RGBLineFollower.getPositionState();
-    Serial.print(offset);
-    Serial.print(",");
-    Serial.println(sensor_state);
     // detects the final T curve
     if(exitTimeout >0) {
       setRightMotorAVoltage(-100);
@@ -138,6 +144,7 @@ void loop()
   digitalWrite(LEDPIN, flagOtherPath);
 }
 
+
 void waitNextPeriod()
 {
   static long LastMillis = 0;
@@ -146,3 +153,4 @@ void waitNextPeriod()
     delay(timeToWait);
   LastMillis = millis();
 }
+
