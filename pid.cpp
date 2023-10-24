@@ -1,13 +1,8 @@
 
 #include <Arduino.h>
 #include "pid.h"
-// #define K 0.5
-// #define Kp 1
-// #define Ki 1
-// #define Kd 0.5
 
 #define MAXPWM 255 // maximum duty cycle for the PWM is 255/MAXPWM
-
 
 volatile int offset_prev = 0;
 volatile int I = 0;
@@ -15,10 +10,10 @@ volatile int I = 0;
 int pid(int offset, int DT, bool flagCurve) 
 {
   // const int deadbandOffset = 40;
-  const float K_real = flagCurve ? 0.5 : K;
-  const float Kp_real = flagCurve ? 0.5 : Kp;
-  const float Ki_real = flagCurve ? 0.05 : Ki;
-  const float Kd_real = flagCurve ? 0 : Kd;
+  const float K_real = flagCurve ? K_curve : K;
+  const float Kp_real = flagCurve ? Kp_curve : Kp;
+  const float Ki_real = flagCurve ? Ki_curve : Ki;
+  const float Kd_real = flagCurve ? Kd_curve : Kd;
 
   const int P = Kp_real * offset;
 

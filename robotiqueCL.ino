@@ -27,6 +27,8 @@ int flagUltraSensor = 0;
 bool flagObstacle = 0;
 int prevTurn = 0;
 bool flagCurve = false;
+int curveTimeout = 0;
+int curveCooldown = 0;
 
 void setup()
 {
@@ -76,8 +78,18 @@ void loop()
     offset = RGBLineFollower.getPositionOffset();
     
     // detects curves
-    if (abs(offset) > 1030){
+    if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){
       flagCurve = true;
+      curveTimeout = 10;
+      curveCooldown = 70;
+    } else if (curveTimeout > 0) {
+      // the robot is still at the curve
+      curveTimeout--;
+      curveCooldown--;
+      flagCurve = true;
+    } else if (curveTimeout == 0 && curveCooldown > 0){
+      flagCurve = false;
+      curveCooldown--;
     } else {
       flagCurve = false;
     }
