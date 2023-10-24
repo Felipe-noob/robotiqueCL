@@ -15,10 +15,10 @@ volatile int I = 0;
 int pid(int offset, int DT, bool flagCurve) 
 {
   // const int deadbandOffset = 40;
-  const int K_real = flagCurve ? 0.5 : K;
-  const int Kp_real = flagCurve ? 0.5 : Kp;
-  const int Ki_real = flagCurve ? 0.05 : Ki;
-  const int Kd_real = flagCurve ? 0 : Kd;
+  const float K_real = flagCurve ? 0.5 : K;
+  const float Kp_real = flagCurve ? 0.5 : Kp;
+  const float Ki_real = flagCurve ? 0.05 : Ki;
+  const float Kd_real = flagCurve ? 0 : Kd;
 
   const int P = Kp_real * offset;
 
@@ -37,6 +37,10 @@ int pid(int offset, int DT, bool flagCurve)
   const int D = 1000 * Kd_real * (offset - offset_prev) / DT;
 
   offset_prev = offset;
-
+  Serial.print(offset);
+  Serial.print(",");
+  Serial.print(P);
+  Serial.print(",");
+  Serial.println(Kp_real);
   return K_real * ( P + I + D);
 }

@@ -64,17 +64,19 @@ void loop()
   if(turnCicles) {
     offset *= 0.95;
     turnCicles--;
+    flagCurve = false;
   } else if ((abs(offset) >= 130) && flagObstacle){
     offset = 405;
     prevTurn = offset;
     flagObstacle = false;
     turnCicles = 10;
+    flagCurve = false;
   } else {
     // straight line
     offset = RGBLineFollower.getPositionOffset();
     
     // detects curves
-    if (abs(offset) > 30){
+    if (abs(offset) > 1030){
       flagCurve = true;
     } else {
       flagCurve = false;
@@ -99,7 +101,7 @@ void loop()
   }
 
   // debug if there is an obstacle
-  Serial.println(offset);
+  // Serial.println(offset);
   digitalWrite(LEDPIN, flagCurve);
 }
 
