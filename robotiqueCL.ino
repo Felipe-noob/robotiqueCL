@@ -76,11 +76,12 @@ void loop()
   } else {
     // no obstacle
     offset = RGBLineFollower.getPositionOffset();
+    Serial.println(offset);
     
     // detects curves
     if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){
       flagCurve = true;
-      curveTimeout = 10;
+      curveTimeout = 8;
       curveCooldown = 70;
     } else if (curveTimeout > 0) {
       // the robot is still at the curve
@@ -105,7 +106,7 @@ void loop()
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
     int distance = ultraSensor.distanceCm();
-    Serial.println(distance);
+    // Serial.println(distance);
     if (distance <= 27){
       flagObstacle = true;
     }
@@ -117,7 +118,7 @@ void loop()
 
   // debug if there is an obstacle
   // Serial.println(offset);
-  digitalWrite(LEDPIN, flagObstacle);
+  digitalWrite(LEDPIN, flagObstacle || turnCicles);
 }
 
 void waitNextPeriod()

@@ -1,5 +1,5 @@
 #define K 0.18
-#define K_curve 0.5
+#define K_curve 0.4
 #define Kp 0.4
 #define Kp_curve 0.5
 #define Ki 0.1
