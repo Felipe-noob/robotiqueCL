@@ -25,6 +25,7 @@ int16_t offset = 0;
 int turnCicles = 0;
 int flagUltraSensor = 0;
 bool flagObstacle = 0;
+bool flagOtherPath = false;
 int prevTurn = 0;
 bool flagCurve = false;
 int curveTimeout = 0;
@@ -57,26 +58,33 @@ void loop()
   RGBLineFollower.loop();
   // int distance = ultraSensor.distanceCm();
 
-  const int speed = turnCicles 
-  ? 0.7 * BASE_SPEED 
+  const int speed = flagOtherPath 
+  ? 0.8 * BASE_SPEED 
   : flagCurve
   ? 40
   : BASE_SPEED;
 
-  if(turnCicles) {
-    offset *= 0.95;
-    turnCicles--;
-    flagCurve = false;
-  } else if ((abs(offset) >= 130) && flagObstacle){
-    offset = 405;
-    prevTurn = offset;
-    flagObstacle = false;
-    turnCicles = 10;
-    flagCurve = false;
+  if (flagObstacle){
+    // the is an obstacle
+    setRightMotorAVoltage(0);
+    setLeftMotorAVoltage(110);
+    flagOtherPath = true;    
+  } else if (flagOtherPath) {
+    // the robot is deviating from the obstacle
+    offset = RGBLineFollower.getPositionOffset();
+    
+    // detects the final T curve
+    if (abs(offset) > 300){
+      flagOtherPath = false;
+    }
+
+    int u = pid(offset, DT, true);
+
+    setRightMotorAVoltage(- (speed - u));
+    setLeftMotorAVoltage(speed + u );
   } else {
     // no obstacle
     offset = RGBLineFollower.getPositionOffset();
-    Serial.println(offset);
     
     // detects curves
     if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){
@@ -96,19 +104,20 @@ void loop()
       // regular operation, straight line
       flagCurve = false;
     }
+
+    int u = pid(offset, DT, flagCurve);
+
+    setRightMotorAVoltage(- (speed - u));
+    setLeftMotorAVoltage(speed + u );
   }
-
-  int u = pid(offset, DT, flagCurve);
-
-  setRightMotorAVoltage(- (speed - u));
-  setLeftMotorAVoltage(speed + u );
 
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
     int distance = ultraSensor.distanceCm();
-    // Serial.println(distance);
     if (distance <= 27){
       flagObstacle = true;
+    } else {
+      flagObstacle = false;
     }
     flagUltraSensor = 0;
 
@@ -117,8 +126,7 @@ void loop()
   }
 
   // debug if there is an obstacle
-  // Serial.println(offset);
-  digitalWrite(LEDPIN, flagObstacle || turnCicles);
+  digitalWrite(LEDPIN, flagOtherPath);
 }
 
 void waitNextPeriod()
