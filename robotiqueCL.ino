@@ -26,6 +26,7 @@ int turnCicles = 0;
 int flagUltraSensor = 0;
 bool flagObstacle = 0;
 int prevTurn = 0;
+bool flagCurve = false;
 
 void setup()
 {
@@ -54,7 +55,12 @@ void loop()
   RGBLineFollower.loop();
   // int distance = ultraSensor.distanceCm();
 
-  const int speed = turnCicles ? 0.7 * BASE_SPEED : BASE_SPEED;
+  const int speed = turnCicles 
+  ? 0.7 * BASE_SPEED 
+  : flagCurve
+  ? 40
+  : BASE_SPEED;
+
   if(turnCicles) {
     offset *= 0.95;
     turnCicles--;
@@ -66,9 +72,16 @@ void loop()
   } else {
     // straight line
     offset = RGBLineFollower.getPositionOffset();
+    
+    // detects curves
+    if (abs(offset) > 30){
+      flagCurve = true;
+    } else {
+      flagCurve = false;
+    }
   }
 
-  int u = pid(offset, DT);
+  int u = pid(offset, DT, flagCurve);
 
   setRightMotorAVoltage(- (speed - u));
   setLeftMotorAVoltage(speed + u );
@@ -87,7 +100,7 @@ void loop()
 
   // debug if there is an obstacle
   Serial.println(offset);
-  digitalWrite(LEDPIN,flagObstacle);
+  digitalWrite(LEDPIN, flagCurve);
 }
 
 void waitNextPeriod()

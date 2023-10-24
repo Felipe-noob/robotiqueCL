@@ -7,4 +7,4 @@
 // speed 50
 #define deadbandOffset 40
 
-int pid(int offset, int DT);
+int pid(int offset, int DT, bool flagCurve);

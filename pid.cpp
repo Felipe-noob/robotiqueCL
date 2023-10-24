@@ -12,15 +12,20 @@
 volatile int offset_prev = 0;
 volatile int I = 0;
 
-int pid(int offset, int DT) 
+int pid(int offset, int DT, bool flagCurve) 
 {
   // const int deadbandOffset = 40;
-  const int P = Kp * offset;
+  const int K_real = flagCurve ? 0.5 : K;
+  const int Kp_real = flagCurve ? 0.5 : Kp;
+  const int Ki_real = flagCurve ? 0.05 : Ki;
+  const int Kd_real = flagCurve ? 0 : Kd;
+
+  const int P = Kp_real * offset;
 
   if (abs(offset) <= deadbandOffset) {
     offset = 0;
   }
-  I += Ki * (offset + offset_prev) * DT / 2000;
+  I += Ki_real * (offset + offset_prev) * DT / 2000;
   // antiwindup
   if (I > MAXPWM) {
     I = MAXPWM;
@@ -29,20 +34,9 @@ int pid(int offset, int DT)
   }
   
   // TODO: is this division too slow?
-  const int D = 1000 * Kd * (offset - offset_prev) / DT;
+  const int D = 1000 * Kd_real * (offset - offset_prev) / DT;
 
   offset_prev = offset;
 
-  // Serial.println(offset);
-  // Serial.print(",");
-  // Serial.print(P);
-  // Serial.print(",");
-  // Serial.print(I);
-  // Serial.print(",");
-  // Serial.print(D);
-  // Serial.print(",");
-  // Serial.print(K * ( P + I + D));
-  // Serial.print("\n");
-
-  return K * ( P + I + D);
+  return K_real * ( P + I + D);
 }
