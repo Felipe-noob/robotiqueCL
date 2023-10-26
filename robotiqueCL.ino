@@ -60,7 +60,6 @@ void setup()
 void loop()
 {
   waitNextPeriod();
-
   // TODO: look up the docs
   RGBLineFollower.loop();
   // int distance = ultraSensor.distanceCm();
@@ -71,6 +70,7 @@ void loop()
   : BASE_SPEED;
 
   // left,right
+  
   Serial.print(flagObstacle);
   Serial.print(",");
   Serial.print(flagOtherPath);
@@ -82,7 +82,7 @@ void loop()
   Serial.print(getPosition1());
   Serial.print(",");
   Serial.println(getPosition2());
-  
+
   if (flagObstacle){
     // the is an obstacle
     setRightMotorAVoltage(0);
@@ -92,6 +92,14 @@ void loop()
     leftTurns = getPosition1();
   } else if (flagOtherPath) {
     // the robot is deviating from the obstacle
+
+    // TODO:
+
+    const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
+    if(curveIndex < -150) {
+      // testado experimentalmente, refinar o código mais tarde
+      flagOtherPath = false;
+    }
     offset = RGBLineFollower.getPositionOffset();
     const int sensor_state = RGBLineFollower.getPositionState();
     // detects the final T curve
