@@ -13,6 +13,7 @@
 #include "MeRGBLineFollower.h"
 #include "Motors.h"
 #include "Encoders.h"
+#include "CentraleUltrasonicSensor.h"
 #include "pid.h"
 
 #define LEDPIN 2
@@ -20,7 +21,7 @@
 #define BASE_SPEED 50
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
-MeUltrasonicSensor ultraSensor(PORT_7);
+CentraleUltrasonicSensor ultraSensor(PORT_7);
 int16_t offset = 0;
 int turnCicles = 0;
 int flagUltraSensor = 0;
@@ -70,7 +71,7 @@ void loop()
   : BASE_SPEED;
 
   // left,right
-  
+  /*
   Serial.print(flagObstacle);
   Serial.print(",");
   Serial.print(flagOtherPath);
@@ -82,6 +83,7 @@ void loop()
   Serial.print(getPosition1());
   Serial.print(",");
   Serial.println(getPosition2());
+  */
 
   if (flagObstacle){
     // the is an obstacle
@@ -148,7 +150,11 @@ void loop()
 
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
-    int distance = ultraSensor.distanceCm();
+    const int t = millis();
+    int distance = ultraSensor.distanceCm(90);
+    Serial.print(distance);
+    Serial.print(",");
+    Serial.println(millis() - t);
     if (distance <= 27){
       flagObstacle = true;
     } else {
