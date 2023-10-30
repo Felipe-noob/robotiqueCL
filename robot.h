@@ -1,5 +1,9 @@
 #pragma once
 
+#include "MeRGBLineFollower.h"
+#include "Motors.h"
+#include "Encoders.h"
+
 enum RobotState {
   STRAIGHT,
   CURVE,
@@ -12,6 +16,19 @@ class Robot {
   
   public:
   RobotState currState;
-  Robot() : currState(STRAIGHT) {}
-  int switchState(RobotState target);
+  RobotState nextState;
+  RobotState prevState;
+  MeRGBLineFollower &RGBLineFollower;
+
+  Robot(MeRGBLineFollower &lineFollower);
+
+  /*
+  Initializes Motors and Encoders
+  */
+  void init();
+
+  void routine();
+
+  int changeState(RobotState target);
+
 };

@@ -10,6 +10,7 @@
 
 
 #include <MeMegaPi.h>
+#include "robot.h"
 #include "MeRGBLineFollower.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -21,6 +22,7 @@
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
 MeUltrasonicSensor ultraSensor(PORT_7);
+Robot Corno(&RGBLineFollower);
 
 int16_t offset = 0;
 int turnCicles = 0;
@@ -40,13 +42,9 @@ int rightTurns = 0;
 void setup()
 {
 
-  InitMotors();
-  InitEncoders();
-  // Timer3.initialize();
-  RGBLineFollower.begin();
+  Corno.init();
+  
 
-  // Setting line following sensitivity, which is used for adjusting line following response speed. The larger the value is,more sensitive it turns.
-  RGBLineFollower.setKp(1);
 
   // initialization of the serial communication.
   Serial.begin(9600);
@@ -55,7 +53,6 @@ void setup()
   // Led obstacle
   pinMode(LEDPIN, OUTPUT);
 
-  InitEncoders();
 }
 
 
@@ -84,16 +81,17 @@ void loop()
   // Serial.print(getPosition1());
   // Serial.print(",");
   // Serial.println(getPosition2());
-  Serial.print(RGBLineFollower.getPositionState());
-  Serial.print(",");
-  Serial.println(RGBLineFollower.getPositionOffset());
+  // Serial.print(RGBLineFollower.getPositionState());
+  // Serial.print(",");
+  // Serial.println(RGBLineFollower.getPositionOffset());
   if (flagObstacle){
     // the is an obstacle
     setRightMotorAVoltage(0);
     setLeftMotorAVoltage(110);
     flagOtherPath = true;    
-    rightTurns = getPosition2();
-    obstacleCooldown = 5;
+    rightTurns = getPosition2(); 
+    obstacleCooldown = 40;
+    // obstacleCooldown = (obstacleCooldown) ? obstacleCooldown : 40;
     leftTurns = getPosition1();
   } else if (flagOtherPath) {
     // the robot is deviating from the obstacle
@@ -111,11 +109,14 @@ void loop()
     const int sensor_state = RGBLineFollower.getPositionState();
     // Serial.println(sensor_state);
     // detects the final T curve
+
+    // 8888
+
     if(exitTimeout) {
       // setRightMotorAVoltage(-100);
       // setLeftMotorAVoltage(180);
-      setRightMotorAVoltage(10);
-      setLeftMotorAVoltage(160);
+      setRightMotorAVoltage(0);
+      setLeftMotorAVoltage(140);
 
 
       exitTimeout--;
@@ -123,11 +124,12 @@ void loop()
 
       flagOtherPath = (exitTimeout) ? true : false;
     }
-    if (offset > 160 && !obstacleCooldown){
+    else if (offset > 160 && obstacleCooldown <= 0){
       // flagOtherPath = false;
-      exitTimeout = 10;
+      exitTimeout = 8;
     } else {
       // PID for the U curve
+      Serial.println(obstacleCooldown);
       int u = pid(offset, DT, false);
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
@@ -165,7 +167,7 @@ void loop()
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
     int distance = ultraSensor.distanceCm();
-    if (distance <= 25){
+    if (distance <= 24){
       flagObstacle = true;
     } else {
       flagObstacle = false;
