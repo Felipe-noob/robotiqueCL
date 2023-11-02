@@ -10,7 +10,7 @@
 
 
 #include <MeMegaPi.h>
-#include "robot.h"
+#include "Robot.h"
 #include "MeRGBLineFollower.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -18,11 +18,10 @@
 
 #define LEDPIN 2
 #define DT 50 // sampling period in milliseconds
-#define BASE_SPEED 50
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
 MeUltrasonicSensor ultraSensor(PORT_7);
-Robot Corno(&RGBLineFollower);
+Robot Corno(&RGBLineFollower, &ultraSensor);
 
 int16_t offset = 0;
 int turnCicles = 0;
@@ -42,13 +41,15 @@ int rightTurns = 0;
 void setup()
 {
 
-  Corno.init();
+  // Initializes Motors, Encoders, RGB Line follower and sets its KP according to the argument value
+  Corno.init(1);
   
 
 
   // initialization of the serial communication.
   Serial.begin(9600);
   Serial.setTimeout(10);
+  Serial.println(Corno.RGBLineFollower->getPositionOffset());
 
   // Led obstacle
   pinMode(LEDPIN, OUTPUT);
@@ -60,7 +61,8 @@ void loop()
 {
   waitNextPeriod();
   // TODO: look up the docs
-  RGBLineFollower.loop();
+  Corno.routine();
+
   // int distance = ultraSensor.distanceCm();
   const int speed = flagOtherPath 
   ? 0.75 * BASE_SPEED 
@@ -105,8 +107,8 @@ void loop()
     //   exitTimeout = 10;
     //   // flagOtherPath = false;
     // }
-    offset = RGBLineFollower.getPositionOffset();
-    const int sensor_state = RGBLineFollower.getPositionState();
+    offset = Corno.RGBLineFollower->getPositionOffset();
+    const int sensor_state = Corno.RGBLineFollower->getPositionState();
     // Serial.println(sensor_state);
     // detects the final T curve
 
@@ -129,7 +131,7 @@ void loop()
       exitTimeout = 8;
     } else {
       // PID for the U curve
-      Serial.println(obstacleCooldown);
+      // Serial.println(obstacleCooldown);
       int u = pid(offset, DT, false);
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
@@ -137,7 +139,7 @@ void loop()
     }
   } else {
     // no obstacle
-    offset = RGBLineFollower.getPositionOffset();
+    offset = Corno.RGBLineFollower->getPositionOffset();
     
     // detects curves
     if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){

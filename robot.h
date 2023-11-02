@@ -4,29 +4,41 @@
 #include "Motors.h"
 #include "Encoders.h"
 
+#define BASE_SPEED 50
+
+
+
 enum RobotState {
   STRAIGHT,
   CURVE,
-  OBSTACLE,
+  OBSTACLEFOUND,
   CLEAREDOBSTACLE
 };
 
 
 class Robot {
-  
-  public:
+  private:
   RobotState currState;
   RobotState nextState;
   RobotState prevState;
-  MeRGBLineFollower &RGBLineFollower;
 
-  Robot(MeRGBLineFollower &lineFollower);
+
+  public:
+  MeRGBLineFollower *RGBLineFollower;
+  MeUltrasonicSensor *FrontObstacleSensor;
+  int16_t offset;
+
+  Robot(MeRGBLineFollower *lineFollower, MeUltrasonicSensor *obstacleSensor);
 
   /*
-  Initializes Motors and Encoders
+  * Initializes Motors, Encoders and sets up the RGB Line Follower
   */
-  void init();
+  void init(float kp);
 
+
+  /*
+  * Main loop
+  */
   void routine();
 
   int changeState(RobotState target);
