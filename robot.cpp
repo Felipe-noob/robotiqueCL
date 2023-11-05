@@ -33,15 +33,15 @@ int Robot::stateTransition(){
       if (checkObstacle() == 1) nextState = OBSTACLEFOUND;
 
       // State transition to Curve
-      else if (abs(offset) > 270 && !curveTimeout && curveCooldown <= 0){
+      else if (abs(offset) > 270 && !curveTimeout && !curveCooldown){
         nextState = CURVE;
         curveTimeout = 8;
         curveCooldown = 70;
       }
       else {
         nextState = STRAIGHT;
-        curveTimeout--;
-        }
+        if(--curveCooldown < 0) curveCooldown = 0;
+      }
       break;
     
 
