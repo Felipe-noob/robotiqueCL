@@ -88,7 +88,7 @@ void loop()
     // the is an obstacle
     setRightMotorAVoltage(0);
     setLeftMotorAVoltage(110);
-    flagOtherPath = true;    
+    flagOtherPath = true;
     rightTurns = getPosition2(); 
     obstacleCooldown = 40;
     // obstacleCooldown = (obstacleCooldown) ? obstacleCooldown : 40;
@@ -155,7 +155,7 @@ void loop()
       flagCurve = true;
     // %%%%%%%%%
 
-    
+
     } else if (curveTimeout == 0 && curveCooldown > 0){
       // there is a cooldown between curves to avoid a false positive
       flagCurve = false;

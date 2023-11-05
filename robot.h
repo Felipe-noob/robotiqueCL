@@ -6,23 +6,22 @@
 #include "pid.h"
 
 #define BASE_SPEED 50
-
+#define CURVE_SPEED 40
 
 
 enum RobotState {
   STRAIGHT,
   CURVE,
   OBSTACLEFOUND,
-  CLEAREDOBSTACLE
+  PATHOBSTACLE
 };
 
 
 class Robot {
   private:
-  RobotState currState;
-  RobotState nextState;
-  RobotState prevState;
+  RobotState currState, nextState, prevState;
   int DT, curveTimeout, curveCooldown;
+  bool obstacleAhead;
     
   public:
   MeRGBLineFollower *RGBLineFollower;
@@ -39,7 +38,7 @@ class Robot {
   /*
   * Checks wether it has obstacle or not. Also counts as 
   */
-  int checkObstacle();
+  void checkObstacle();
 
   /*
   * Main routine. Robot acts accordingly with its states.

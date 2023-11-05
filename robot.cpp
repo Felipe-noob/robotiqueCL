@@ -29,7 +29,7 @@ int Robot::stateTransition(){
 
     case STRAIGHT: 
       // State transition to Obstacle found
-      if (checkObstacle() == 1) nextState = OBSTACLEFOUND;
+      if (obstacleAhead) nextState = OBSTACLEFOUND;
 
       // State transition to Curve
       // Checks if offset is high enough and if the conditions to transition to CURVE state are set
@@ -39,7 +39,9 @@ int Robot::stateTransition(){
         curveCooldown = 70;
       }
       else {
+        // Not a curve or still on cooldown
         nextState = STRAIGHT;
+        // Substracts cooldown, but sets a limit to 0 to avoid overflow. This is also possible using integers that support more bits, but it is still less safe
         if(--curveCooldown < 0) curveCooldown = 0;
       }
       break;
@@ -47,11 +49,24 @@ int Robot::stateTransition(){
 
     case CURVE:
       if (curveTimeout){
+        // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
         nextState = CURVE;
       } else nextState = STRAIGHT;
-    }
+      break;
+
+    
+    case OBSTACLEFOUND:
+      // Until the detector stops detecting an obstacle, the robot will stay in this state, making the slight curve.
+      if (obstacleAhead) nextState = OBSTACLEFOUND;
+      else nextState = PATHOBSTACLE;
+      break;
+    
+
+    // TODO TRANSITION FROM THE END OF U CURVE TO RESUME PATH
+    } // end switch
+
   prevState = currState;
   currState = nextState;   
 }
@@ -66,19 +81,46 @@ void Robot::routine(){
       int u = pid(offset, DT, false);
 
       // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
-      // Also, by declaring speed here, we limit its scope and any optimization the compiler might try doing.
+      // Also, by declaring speed here, instead of globally, we limit its scope and any optimization the compiler might try doing.
       int speed = BASE_SPEED;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
     }
+    
     case CURVE: {
       int u = pid(offset, DT, true);
-      int speed = 40;
+      // Special speed at curve
+      int speed = CURVE_SPEED;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
     }
-  }
 
+    case OBSTACLEFOUND: {
+      setRightMotorAVoltage(0);
+      setLeftMotorAVoltage(110);
+      break;
+    }
+
+    case PATHOBSTACLE: {
+      int speed = 0.75 * BASE_SPEED;
+      int u = pid(offset, DT, false);
+      setRightMotorAVoltage(- (speed - u));
+      setLeftMotorAVoltage(speed + u ); 
+      break;
+    }
+  } // end switch
+  stateTransition();
+}
+
+
+void Robot::checkObstacle(){
+  static int activateSensor;
+  if (activateSensor == 2){
+    int distance = FrontObstacleSensor->distanceCm();
+    if (distance <= 24) obstacleAhead = true;
+    else obstacleAhead = false;
+    activateSensor = 0;
+  } else activateSensor++;
 }
