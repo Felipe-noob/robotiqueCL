@@ -1,3 +1,5 @@
+#pragma once
+
 // PIN utilisées pour l'alimentation moteur
 #define PWMm1 12
 #define BI1m1 35

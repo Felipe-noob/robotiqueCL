@@ -1,3 +1,5 @@
+#pragma once
+
 // PIN utilisées pour l'encodeur incrémental
 #define PORT1_NE1 31
 #define PORT1_NE2 18

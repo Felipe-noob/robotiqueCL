@@ -11,17 +11,15 @@
 
 #include <MeMegaPi.h>
 #include "Robot.h"
-#include "MeRGBLineFollower.h"
-#include "Motors.h"
-#include "Encoders.h"
-#include "pid.h"
+
 
 #define LEDPIN 2
 #define DT 50 // sampling period in milliseconds
+#define BASE_SPEED 50
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
 MeUltrasonicSensor ultraSensor(PORT_7);
-Robot Corno(&RGBLineFollower, &ultraSensor);
+Robot Corno(&RGBLineFollower, &ultraSensor, DT);
 
 int16_t offset = 0;
 int turnCicles = 0;
@@ -146,11 +144,18 @@ void loop()
       flagCurve = true;
       curveTimeout = 8;
       curveCooldown = 70;
+
+
+      //%%%%%%%%
+      // Curve behaviour!
     } else if (curveTimeout > 0) {
       // the robot is still at the curve
       curveTimeout--;
       curveCooldown--;
       flagCurve = true;
+    // %%%%%%%%%
+
+    
     } else if (curveTimeout == 0 && curveCooldown > 0){
       // there is a cooldown between curves to avoid a false positive
       flagCurve = false;
@@ -168,7 +173,7 @@ void loop()
 
   if (flagUltraSensor == 2){
     // checks for obstacle every 3 cycles
-    int distance = ultraSensor.distanceCm();
+    int distance = Corno.FrontObstacleSensor->distanceCm();
     if (distance <= 24){
       flagObstacle = true;
     } else {
