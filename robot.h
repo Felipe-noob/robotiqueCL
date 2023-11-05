@@ -22,7 +22,7 @@ class Robot {
   RobotState currState;
   RobotState nextState;
   RobotState prevState;
-  int DT, speed, curveTimeout, curveCooldown;
+  int DT, curveTimeout, curveCooldown;
     
   public:
   MeRGBLineFollower *RGBLineFollower;

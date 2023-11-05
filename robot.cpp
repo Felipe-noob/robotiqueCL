@@ -24,7 +24,6 @@ void Robot::init(float kp){
 
 // Handles state transition.
 int Robot::stateTransition(){
-  prevState = currState;
 
   switch(currState){
 
@@ -33,6 +32,7 @@ int Robot::stateTransition(){
       if (checkObstacle() == 1) nextState = OBSTACLEFOUND;
 
       // State transition to Curve
+      // Checks if offset is high enough and if the conditions to transition to CURVE state are set
       else if (abs(offset) > 270 && !curveTimeout && !curveCooldown){
         nextState = CURVE;
         curveTimeout = 8;
@@ -46,28 +46,35 @@ int Robot::stateTransition(){
     
 
     case CURVE:
-      if (curveTimeout > 0){
+      if (curveTimeout){
         curveTimeout--;
         curveCooldown--;
         nextState = CURVE;
-      }
+      } else nextState = STRAIGHT;
     }
+  prevState = currState;
+  currState = nextState;   
 }
 
 void Robot::routine(){
   RGBLineFollower->loop();
 
-
   offset = RGBLineFollower->getPositionOffset();
+
   switch(currState){
     case STRAIGHT: {
       int u = pid(offset, DT, false);
+
+      // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
+      // Also, by declaring speed here, we limit its scope and any optimization the compiler might try doing.
+      int speed = BASE_SPEED;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
     }
     case CURVE: {
       int u = pid(offset, DT, true);
+      int speed = 40;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
