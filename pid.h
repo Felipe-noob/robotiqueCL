@@ -6,7 +6,7 @@
 #define Ki 0.1
 #define Ki_curve 0.1
 #define Kd 0
-#define Kd_curve 0
+#define Kd_curve 0.1
 // K = 0.18
 // Kd = 0.02
 // speed 50

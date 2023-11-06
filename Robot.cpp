@@ -1,6 +1,6 @@
 #include "Robot.h"
 
-const int first_line = 560;
+const int first_line = 580;
 const int second_line = 0;
 const int third_line = second_line;
 const int line_after_first = 0;
@@ -44,7 +44,7 @@ void Robot::stateTransition(){
         nextState = OBSTACLEFOUND;
       } else if (distance > 560 && !curveTimeout && !curveCooldown){
         nextState = CURVE;
-        curveTimeout = 8;
+        curveTimeout = 30;
         curveCooldown = 70;
       } else {
         // Not a curve or still on cooldown
@@ -77,12 +77,8 @@ void Robot::stateTransition(){
         nextState = PATHOBSTACLE;
         obstacleCooldown = 40;
       }
-      digitalWrite(LEDPIN, HIGH);
 
       break;
-    
-
-
 
     case PATHOBSTACLE:
       // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
@@ -119,7 +115,7 @@ void Robot::routine(){
 
       // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
       // Also, by declaring speed here, instead of globally, we limit its scope and any optimization the compiler might try doing.
-      int speed = BASE_SPEED;
+      int speed = 60;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
@@ -128,7 +124,7 @@ void Robot::routine(){
     case CURVE: {
       int u = pid(offset, DT, true);
       // Special speed at curve
-      int speed = CURVE_SPEED;
+      int speed = 30;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
@@ -142,7 +138,7 @@ void Robot::routine(){
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
-      int speed = 0.75 * BASE_SPEED;
+      int speed = 38;
       int u = pid(offset, DT, false);
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u ); 
