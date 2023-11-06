@@ -78,6 +78,7 @@ void Robot::stateTransition(){
       // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
       if (offset > 160 && obstacleCooldown <= 0){
         nextState = RESUMECOURSE;
+        exitTimeout = 8;
       } else {
         obstacleCooldown--;
         nextState = PATHOBSTACLE;
@@ -98,7 +99,7 @@ void Robot::stateTransition(){
 
 void Robot::routine(){
   RGBLineFollower->loop();
-
+  checkObstacle();
   offset = RGBLineFollower->getPositionOffset();
 
   switch(currState){
@@ -160,6 +161,7 @@ void Robot::checkObstacle(){
 
 
 void Robot::printInfo(){
-  Serial.println(currState);
-  Serial.print(offset);
+  Serial.print(currState);
+  Serial.print(",");
+  Serial.println(offset);
 }
