@@ -60,13 +60,14 @@ void loop()
   waitNextPeriod();
   // TODO: look up the docs
   Corno.routine();
+  Corno.printInfo();
 
   // int distance = ultraSensor.distanceCm();
-  const int speed = flagOtherPath 
-  ? 0.75 * BASE_SPEED 
-  : flagCurve
-  ? 40
-  : BASE_SPEED;
+  // const int speed = flagOtherPath 
+  // ? 0.75 * BASE_SPEED 
+  // : flagCurve
+  // ? 40
+  // : BASE_SPEED;
 
   // left,right
   
@@ -84,106 +85,106 @@ void loop()
   // Serial.print(RGBLineFollower.getPositionState());
   // Serial.print(",");
   // Serial.println(RGBLineFollower.getPositionOffset());
-  if (flagObstacle){
-    // the is an obstacle
-    setRightMotorAVoltage(0);
-    setLeftMotorAVoltage(110);
-    flagOtherPath = true;
-    rightTurns = getPosition2(); 
-    obstacleCooldown = 40;
-    // obstacleCooldown = (obstacleCooldown) ? obstacleCooldown : 40;
-    leftTurns = getPosition1();
-  } else if (flagOtherPath) {
-    // the robot is deviating from the obstacle
+  // if (flagObstacle){
+  //   // the is an obstacle
+  //   setRightMotorAVoltage(0);
+  //   setLeftMotorAVoltage(110);
+  //   flagOtherPath = true;
+  //   rightTurns = getPosition2(); 
+  //   obstacleCooldown = 40;
+  //   // obstacleCooldown = (obstacleCooldown) ? obstacleCooldown : 40;
+  //   leftTurns = getPosition1();
+  // } else if (flagOtherPath) {
+  //   // the robot is deviating from the obstacle
 
-    // TODO:
+  //   // TODO:
 
-    const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
-    // Serial.println(curveIndex);
-    // if(curveIndex < -120) {
-    //   // testado experimentalmente, refinar o código mais tarde
-    //   exitTimeout = 10;
-    //   // flagOtherPath = false;
-    // }
-    offset = Corno.RGBLineFollower->getPositionOffset();
-    const int sensor_state = Corno.RGBLineFollower->getPositionState();
-    // Serial.println(sensor_state);
-    // detects the final T curve
+  //   const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
+  //   // Serial.println(curveIndex);
+  //   // if(curveIndex < -120) {
+  //   //   // testado experimentalmente, refinar o código mais tarde
+  //   //   exitTimeout = 10;
+  //   //   // flagOtherPath = false;
+  //   // }
+  //   offset = Corno.RGBLineFollower->getPositionOffset();
+  //   const int sensor_state = Corno.RGBLineFollower->getPositionState();
+  //   // Serial.println(sensor_state);
+  //   // detects the final T curve
 
-    // 8888
+  //   // 8888
 
-    if(exitTimeout) {
-      // setRightMotorAVoltage(-100);
-      // setLeftMotorAVoltage(180);
-      setRightMotorAVoltage(0);
-      setLeftMotorAVoltage(140);
+  //   if(exitTimeout) {
+  //     // setRightMotorAVoltage(-100);
+  //     // setLeftMotorAVoltage(180);
+  //     setRightMotorAVoltage(0);
+  //     setLeftMotorAVoltage(140);
 
 
-      exitTimeout--;
-      // LINE BELOW IS STATE TRANSITION -> Obstacle path to regular path
+  //     exitTimeout--;
+  //     // LINE BELOW IS STATE TRANSITION -> Obstacle path to regular path
 
-      flagOtherPath = (exitTimeout) ? true : false;
-    }
-    else if (offset > 160 && obstacleCooldown <= 0){
-      // flagOtherPath = false;
-      exitTimeout = 8;
-    } else {
-      // PID for the U curve
-      // Serial.println(obstacleCooldown);
-      int u = pid(offset, DT, false);
-      setRightMotorAVoltage(- (speed - u));
-      setLeftMotorAVoltage(speed + u );
-      obstacleCooldown--;
-    }
-  } else {
-    // no obstacle
-    offset = Corno.RGBLineFollower->getPositionOffset();
+  //     flagOtherPath = (exitTimeout) ? true : false;
+  //   }
+  //   else if (offset > 160 && obstacleCooldown <= 0){
+  //     // flagOtherPath = false;
+  //     exitTimeout = 8;
+  //   } else {
+  //     // PID for the U curve
+  //     // Serial.println(obstacleCooldown);
+  //     int u = pid(offset, DT, false);
+  //     setRightMotorAVoltage(- (speed - u));
+  //     setLeftMotorAVoltage(speed + u );
+  //     obstacleCooldown--;
+  //   }
+  // } else {
+  //   // no obstacle
+  //   offset = Corno.RGBLineFollower->getPositionOffset();
     
-    // detects curves
-    if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){
-      flagCurve = true;
-      curveTimeout = 8;
-      curveCooldown = 70;
+  //   // detects curves
+  //   if (abs(offset) > 270 && curveTimeout == 0 && curveCooldown == 0){
+  //     flagCurve = true;
+  //     curveTimeout = 8;
+  //     curveCooldown = 70;
 
 
-      //%%%%%%%%
-      // Curve behaviour!
-    } else if (curveTimeout > 0) {
-      // the robot is still at the curve
-      curveTimeout--;
-      curveCooldown--;
-      flagCurve = true;
-    // %%%%%%%%%
+  //     //%%%%%%%%
+  //     // Curve behaviour!
+  //   } else if (curveTimeout > 0) {
+  //     // the robot is still at the curve
+  //     curveTimeout--;
+  //     curveCooldown--;
+  //     flagCurve = true;
+  //   // %%%%%%%%%
 
 
-    } else if (curveTimeout == 0 && curveCooldown > 0){
-      // there is a cooldown between curves to avoid a false positive
-      flagCurve = false;
-      curveCooldown--;
-    } else {
-      // regular operation, straight line
-      flagCurve = false;
-    }
+  //   } else if (curveTimeout == 0 && curveCooldown > 0){
+  //     // there is a cooldown between curves to avoid a false positive
+  //     flagCurve = false;
+  //     curveCooldown--;
+  //   } else {
+  //     // regular operation, straight line
+  //     flagCurve = false;
+  //   }
 
-    int u = pid(offset, DT, flagCurve);
+  //   int u = pid(offset, DT, flagCurve);
 
-    setRightMotorAVoltage(- (speed - u));
-    setLeftMotorAVoltage(speed + u );
-  }
+  //   setRightMotorAVoltage(- (speed - u));
+  //   setLeftMotorAVoltage(speed + u );
+  // }
 
-  if (flagUltraSensor == 2){
-    // checks for obstacle every 3 cycles
-    int distance = Corno.FrontObstacleSensor->distanceCm();
-    if (distance <= 24){
-      flagObstacle = true;
-    } else {
-      flagObstacle = false;
-    }
-    flagUltraSensor = 0;
+  // if (flagUltraSensor == 2){
+  //   // checks for obstacle every 3 cycles
+  //   int distance = Corno.FrontObstacleSensor->distanceCm();
+  //   if (distance <= 24){
+  //     flagObstacle = true;
+  //   } else {
+  //     flagObstacle = false;
+  //   }
+  //   flagUltraSensor = 0;
 
-  } else {
-    flagUltraSensor++;
-  }
+  // } else {
+  //   flagUltraSensor++;
+  // }
 
   // debug if there is an obstacle
   digitalWrite(LEDPIN, flagOtherPath);

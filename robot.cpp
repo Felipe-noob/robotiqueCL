@@ -29,7 +29,9 @@ int Robot::stateTransition(){
 
     case STRAIGHT: 
       // State transition to Obstacle found
-      if (obstacleAhead) nextState = OBSTACLEFOUND;
+      if (obstacleAhead) {
+        nextState = OBSTACLEFOUND;
+        }
 
       // State transition to Curve
       // Checks if offset is high enough and if the conditions to transition to CURVE state are set
@@ -60,12 +62,33 @@ int Robot::stateTransition(){
     case OBSTACLEFOUND:
       // Until the detector stops detecting an obstacle, the robot will stay in this state, making the slight curve.
       if (obstacleAhead) nextState = OBSTACLEFOUND;
-      else nextState = PATHOBSTACLE;
+      else {
+        nextState = PATHOBSTACLE;
+        obstacleCooldown = 40;
+      }
       break;
     
 
     // TODO TRANSITION FROM THE END OF U CURVE TO RESUME PATH
-    } // end switch
+
+
+    case PATHOBSTACLE:
+      // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
+      if (offset > 160 && obstacleCooldown <= 0){
+        nextState = RESUMECOURSE;
+      } else {
+        obstacleCooldown--;
+        nextState = PATHOBSTACLE;
+      }
+      break;
+
+    case RESUMECOURSE:
+      if(exitTimeout){
+        exitTimeout--;
+        nextState = RESUMECOURSE;
+      }else nextState = STRAIGHT;
+
+    } // end switch STATE TRANSITION
 
   prevState = currState;
   currState = nextState;   
@@ -104,10 +127,18 @@ void Robot::routine(){
     }
 
     case PATHOBSTACLE: {
+      // When in alternate path, robot goes slower
       int speed = 0.75 * BASE_SPEED;
       int u = pid(offset, DT, false);
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u ); 
+      break;
+    }
+
+    case RESUMECOURSE: {
+      // Turns violently
+      setRightMotorAVoltage(0);
+      setLeftMotorAVoltage(140);
       break;
     }
   } // end switch
@@ -123,4 +154,10 @@ void Robot::checkObstacle(){
     else obstacleAhead = false;
     activateSensor = 0;
   } else activateSensor++;
+}
+
+
+void Robot::printInfo(){
+  Serial.println(currState);
+  Serial.print(offset);
 }

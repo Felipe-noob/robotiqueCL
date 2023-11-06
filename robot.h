@@ -13,14 +13,15 @@ enum RobotState {
   STRAIGHT,
   CURVE,
   OBSTACLEFOUND,
-  PATHOBSTACLE
+  PATHOBSTACLE,
+  RESUMECOURSE
 };
 
 
 class Robot {
   private:
   RobotState currState, nextState, prevState;
-  int DT, curveTimeout, curveCooldown;
+  int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout;
   bool obstacleAhead;
     
   public:
@@ -52,4 +53,9 @@ class Robot {
   */
   int stateTransition();
 
+
+  /*
+  * Prints stuff
+  */
+  void printInfo();
 };
