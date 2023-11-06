@@ -6,7 +6,7 @@
 #include "Encoders.h"
 #include "pid.h"
 
-#define BASE_SPEED 50
+#define BASE_SPEED 100
 #define CURVE_SPEED 40
 #define LEDPIN 2
 

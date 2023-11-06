@@ -14,7 +14,6 @@
 
 
 #define DT 50 // sampling period in milliseconds
-#define BASE_SPEED 50
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
 CentraleUltrasonicSensor ultraSensor(PORT_7);

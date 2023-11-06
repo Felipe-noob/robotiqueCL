@@ -35,16 +35,14 @@ void Robot::stateTransition(){
 
   switch(currState){
 
-    case STRAIGHT: 
-      // State transition to Obstacle found
-      if (obstacleAhead) {
-        nextState = OBSTACLEFOUND;
-      }
-
+    case STRAIGHT:{
       // State transition to Curve
       // Checks if offset is high enough and if the conditions to transition to CURVE state are set
       const int distance = getPosition1() - leftEncoder;
-      if (distance > 560 && !curveTimeout && !curveCooldown){
+      // State transition to Obstacle found
+      if (obstacleAhead) {
+        nextState = OBSTACLEFOUND;
+      } else if (distance > 560 && !curveTimeout && !curveCooldown){
         nextState = CURVE;
         curveTimeout = 8;
         curveCooldown = 70;
@@ -55,7 +53,7 @@ void Robot::stateTransition(){
         if(--curveCooldown < 0) curveCooldown = 0;
       }
       break;
-    
+    }
 
     case CURVE:
       if (curveTimeout){
@@ -84,7 +82,6 @@ void Robot::stateTransition(){
       break;
     
 
-    // TODO TRANSITION FROM THE END OF U CURVE TO RESUME PATH
 
 
     case PATHOBSTACLE:
@@ -103,6 +100,7 @@ void Robot::stateTransition(){
         exitTimeout--;
         nextState = RESUMECOURSE;
       }else nextState = STRAIGHT;
+      break;
 
     } // end switch STATE TRANSITION
 
