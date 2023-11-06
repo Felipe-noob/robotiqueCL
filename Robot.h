@@ -23,7 +23,7 @@ enum RobotState {
 class Robot {
   private:
   RobotState currState, nextState, prevState;
-  int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout, leftEncoder, rightEncoder;
+  int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout, leftEncoder, rightEncoder, curveCount;
   bool obstacleAhead;
     
   public:
@@ -36,7 +36,7 @@ class Robot {
   /*
   * Initializes Motors, Encoders and sets up the RGB Line Follower
   */
-  void init(float kp);
+  void init();
 
   /*
   * Checks wether it has obstacle or not. Also counts as 

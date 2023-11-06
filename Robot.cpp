@@ -17,16 +17,17 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   curveCooldown = 0;
   leftEncoder = 0;
   rightEncoder = 0;
+  curveCount = 0;
 }
 
-void Robot::init(float kp){
+void Robot::init(){
   InitMotors();
   InitEncoders();
 
   RGBLineFollower->begin();
 
   // Setting line following sensitivity, which is used for adjusting line following response speed. The larger the value is,more sensitive it turns.
-  RGBLineFollower->setKp(kp);
+  RGBLineFollower->setKp(1);
 }
 
 // Handles state transition.
@@ -38,16 +39,16 @@ void Robot::stateTransition(){
       // State transition to Obstacle found
       if (obstacleAhead) {
         nextState = OBSTACLEFOUND;
-        }
+      }
 
       // State transition to Curve
       // Checks if offset is high enough and if the conditions to transition to CURVE state are set
-      else if (abs(offset) > 270 && !curveTimeout && !curveCooldown){
+      const int distance = getPosition1() - leftEncoder;
+      if (distance > 560 && !curveTimeout && !curveCooldown){
         nextState = CURVE;
         curveTimeout = 8;
         curveCooldown = 70;
-      }
-      else {
+      } else {
         // Not a curve or still on cooldown
         nextState = STRAIGHT;
         // Substracts cooldown, but sets a limit to 0 to avoid overflow. This is also possible using integers that support more bits, but it is still less safe
@@ -61,10 +62,13 @@ void Robot::stateTransition(){
         // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
-        leftEncoder = 0;
-        rightEncoder = 0;
         nextState = CURVE;
-      } else nextState = STRAIGHT;
+      } else {
+        leftEncoder = getPosition1();
+        rightEncoder = getPosition2();
+        curveCount++;
+        nextState = STRAIGHT;
+      }
       break;
 
     

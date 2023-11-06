@@ -24,7 +24,7 @@ void setup()
 {
 
   // Initializes Motors, Encoders, RGB Line follower and sets its KP according to the argument value
-  Corno.init(1);
+  Corno.init();
 
   // initialization of the serial communication.
   Serial.begin(9600);
