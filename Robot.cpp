@@ -42,15 +42,24 @@ void Robot::stateTransition(){
       // State transition to Obstacle found
       if (obstacleAhead) {
         nextState = OBSTACLEFOUND;
-      } else if (distance > 560 && !curveTimeout && !curveCooldown){
-        nextState = CURVE;
-        curveTimeout = 30;
-        curveCooldown = 70;
+      } else if (distance > 560){
+        nextState = WAITINGCURVE;
+        
       } else {
         // Not a curve or still on cooldown
         nextState = STRAIGHT;
         // Substracts cooldown, but sets a limit to 0 to avoid overflow. This is also possible using integers that support more bits, but it is still less safe
         if(--curveCooldown < 0) curveCooldown = 0;
+      }
+      break;
+    }
+    case WAITINGCURVE: {
+      if (abs(offset) > 270 && !curveTimeout && !curveCooldown) {
+        curveTimeout = 8;
+        curveCooldown = 70;
+        nextState = CURVE;
+      } else {
+        nextState = WAITINGCURVE;
       }
       break;
     }
@@ -115,16 +124,25 @@ void Robot::routine(){
 
       // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
       // Also, by declaring speed here, instead of globally, we limit its scope and any optimization the compiler might try doing.
-      int speed = 60;
+      int speed = 70;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
     }
     
+    case WAITINGCURVE: {
+      int u = pid(offset, DT, false);
+
+      int speed = 50;
+      setRightMotorAVoltage(- (speed - u));
+      setLeftMotorAVoltage(speed + u );
+      break;
+    }
+
     case CURVE: {
       int u = pid(offset, DT, true);
       // Special speed at curve
-      int speed = 30;
+      int speed = 40;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
