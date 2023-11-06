@@ -1,7 +1,12 @@
 #include "Robot.h"
 
+const int first_line = 560;
+const int second_line = 0;
+const int third_line = second_line;
+const int line_after_first = 0;
+const int line_after_second = 0;
 
-Robot::Robot(MeRGBLineFollower *lineFollower, MeUltrasonicSensor *obstacleSensor, int samplingTime){
+Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime){
   // Initial state Straight
   currState = STRAIGHT;
   offset = 0;

@@ -17,7 +17,7 @@
 #define BASE_SPEED 50
 
 MeRGBLineFollower RGBLineFollower(PORT_8,1);
-MeUltrasonicSensor ultraSensor(PORT_7);
+CentraleUltrasonicSensor ultraSensor(PORT_7);
 Robot Corno(&RGBLineFollower, &ultraSensor, DT);
 
 // int16_t offset = 0;

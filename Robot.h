@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <MeUltrasonicSensor.h>
+#include "CentraleUltrasonicSensor.h"
 #include "MeRGBLineFollower.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -28,10 +28,10 @@ class Robot {
     
   public:
   MeRGBLineFollower *RGBLineFollower;
-  MeUltrasonicSensor *FrontObstacleSensor;
+  CentraleUltrasonicSensor *FrontObstacleSensor;
   int16_t offset;
 
-  Robot(MeRGBLineFollower *lineFollower, MeUltrasonicSensor *obstacleSensor, int samplingTime);
+  Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime);
 
   /*
   * Initializes Motors, Encoders and sets up the RGB Line Follower
