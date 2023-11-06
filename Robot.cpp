@@ -15,6 +15,8 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   DT = samplingTime;
   curveTimeout = 0;
   curveCooldown = 0;
+  leftEncoder = 0;
+  rightEncoder = 0;
 }
 
 void Robot::init(float kp){
@@ -59,6 +61,8 @@ void Robot::stateTransition(){
         // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
+        leftEncoder = 0;
+        rightEncoder = 0;
         nextState = CURVE;
       } else nextState = STRAIGHT;
       break;

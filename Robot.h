@@ -23,7 +23,7 @@ enum RobotState {
 class Robot {
   private:
   RobotState currState, nextState, prevState;
-  int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout;
+  int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout, leftEncoder, rightEncoder;
   bool obstacleAhead;
     
   public:
