@@ -66,6 +66,8 @@ int Robot::stateTransition(){
         nextState = PATHOBSTACLE;
         obstacleCooldown = 40;
       }
+      digitalWrite(LEDPIN, HIGH);
+
       break;
     
 

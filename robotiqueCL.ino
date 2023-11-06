@@ -13,7 +13,6 @@
 #include "Robot.h"
 
 
-#define LEDPIN 2
 #define DT 50 // sampling period in milliseconds
 #define BASE_SPEED 50
 
@@ -21,20 +20,20 @@ MeRGBLineFollower RGBLineFollower(PORT_8,1);
 MeUltrasonicSensor ultraSensor(PORT_7);
 Robot Corno(&RGBLineFollower, &ultraSensor, DT);
 
-int16_t offset = 0;
-int turnCicles = 0;
-int flagUltraSensor = 0;
-bool flagObstacle = 0;
-bool flagOtherPath = false;
-int prevTurn = 0;
-bool flagCurve = false;
-int curveTimeout = 0;
-int curveCooldown = 0;
-int exitTimeout = 0;
-int obstacleCooldown = 0;
+// int16_t offset = 0;
+// int turnCicles = 0;
+// int flagUltraSensor = 0;
+// bool flagObstacle = 0;
+// bool flagOtherPath = false;
+// int prevTurn = 0;
+// bool flagCurve = false;
+// int curveTimeout = 0;
+// int curveCooldown = 0;
+// int exitTimeout = 0;
+// int obstacleCooldown = 0;
 
-int leftTurns = 0;
-int rightTurns = 0; 
+// int leftTurns = 0;
+// int rightTurns = 0; 
 
 void setup()
 {
@@ -187,7 +186,7 @@ void loop()
   // }
 
   // debug if there is an obstacle
-  digitalWrite(LEDPIN, flagOtherPath);
+  // digitalWrite(LEDPIN, flagOtherPath);
 }
 
 

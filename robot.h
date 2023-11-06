@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 #include <MeUltrasonicSensor.h>
 #include "MeRGBLineFollower.h"
 #include "Motors.h"
@@ -7,6 +8,7 @@
 
 #define BASE_SPEED 50
 #define CURVE_SPEED 40
+#define LEDPIN 2
 
 
 enum RobotState {
