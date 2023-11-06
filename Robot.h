@@ -53,7 +53,7 @@ class Robot {
   /* 
   * Handles state transition at every cycle
   */
-  int stateTransition();
+  void stateTransition();
 
 
   /*

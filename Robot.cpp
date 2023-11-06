@@ -23,7 +23,7 @@ void Robot::init(float kp){
 }
 
 // Handles state transition.
-int Robot::stateTransition(){
+void Robot::stateTransition(){
 
   switch(currState){
 
