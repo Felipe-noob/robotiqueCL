@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 #include "pid.h"
 
@@ -7,20 +6,15 @@
 volatile int offset_prev = 0;
 volatile int I = 0;
 
-int pid(int offset, int DT, bool flagCurve) 
+int pid(int offset, int DT, float K, float Kp, float Ki, float Kd) 
 {
-  // const int deadbandOffset = 40;
-  const float K_real = flagCurve ? K_curve : K;
-  const float Kp_real = flagCurve ? Kp_curve : Kp;
-  const float Ki_real = flagCurve ? Ki_curve : Ki;
-  const float Kd_real = flagCurve ? Kd_curve : Kd;
-
-  const int P = Kp_real * offset;
-
+  const int P = Kp * offset;
+  /*
   if (abs(offset) <= deadbandOffset) {
     offset = 0;
   }
-  I += Ki_real * (offset + offset_prev) * DT / 2000;
+  */
+  I += Ki * (offset + offset_prev) * DT / 2000;
   // antiwindup
   if (I > MAXPWM) {
     I = MAXPWM;
@@ -28,14 +22,8 @@ int pid(int offset, int DT, bool flagCurve)
     I = -MAXPWM;
   }
   
-  // TODO: is this division too slow?
-  const int D = 1000 * Kd_real * (offset - offset_prev) / DT;
-  // Serial.print(offset);
-  // Serial.print(",");
-  // Serial.print(P);
-  // Serial.print(",");
-  // Serial.println(I);
+  const int D = 1000 * Kd * (offset - offset_prev) / DT;
 
   offset_prev = offset;
-  return K_real * ( P + I + D);
+  return K * ( P + I + D );
 }

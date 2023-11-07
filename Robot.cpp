@@ -1,11 +1,5 @@
 #include "Robot.h"
 
-const int first_line = 580;
-const int second_line = 0;
-const int third_line = second_line;
-const int line_after_first = 0;
-const int line_after_second = 0;
-
 Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime){
   // Initial state Straight
   currState = STRAIGHT;
@@ -44,16 +38,16 @@ void Robot::stateTransition(){
 
       switch (lineIndex) {
         case 0: 
-          endOfLine = distance > 300;
-          break;
-        case 1:
-          endOfLine = distance > 540;
-          break;
-        case 2:
           endOfLine = distance > 100;
           break;
-        case 3:
+        case 1:
           endOfLine = distance > 0;
+          break;
+        case 2:
+          endOfLine = distance > 200;
+          break;
+        case 3:
+          endOfLine = distance > 560;
           break;
         default:
           endOfLine = true;
@@ -75,8 +69,8 @@ void Robot::stateTransition(){
     }
     case WAITINGCURVE: {
       if (abs(offset) > 270 && !curveTimeout && !curveCooldown) {
-        curveTimeout = 8;
-        curveCooldown = 70;
+        curveTimeout = 6;
+        curveCooldown = 50;
         nextState = CURVE;
       } else {
         nextState = WAITINGCURVE;
@@ -140,10 +134,7 @@ void Robot::routine(){
 
   switch(currState){
     case STRAIGHT: {
-      const int u = pid(offset, DT, false);
-
-      // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
-      // Also, by declaring speed here, instead of globally, we limit its scope and any optimization the compiler might try doing.
+      const int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
       const int speed = 65;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
@@ -151,7 +142,7 @@ void Robot::routine(){
     }
     
     case WAITINGCURVE: {
-      int u = pid(offset, DT, false);
+      int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
 
       int speed = 50;
       setRightMotorAVoltage(- (speed - u));
@@ -160,7 +151,7 @@ void Robot::routine(){
     }
 
     case CURVE: {
-      int u = pid(offset, DT, true);
+      int u = pid(offset, DT, 0.4, 0.5, 0.1, 0.1);
       // Special speed at curve
       int speed = 40;
       setRightMotorAVoltage(- (speed - u));
@@ -169,15 +160,15 @@ void Robot::routine(){
     }
 
     case OBSTACLEFOUND: {
-      setRightMotorAVoltage(0);
-      setLeftMotorAVoltage(110);
+      setRightMotorAVoltage(-110);
+      setLeftMotorAVoltage(0);
       break;
     }
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
       int speed = 38;
-      int u = pid(offset, DT, false);
+      int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u ); 
       break;
@@ -185,8 +176,8 @@ void Robot::routine(){
 
     case RESUMECOURSE: {
       // Turns violently
-      setRightMotorAVoltage(0);
-      setLeftMotorAVoltage(140);
+      setRightMotorAVoltage(-140);
+      setLeftMotorAVoltage(0);
       break;
     }
   } // end switch
