@@ -159,7 +159,7 @@ void Robot::routine(){
     }
 
     case CURVE: {
-      int u = pid(offset, DT, 0.4, 0.5, 0.1, 0.1);
+      int u = pid(offset, DT, 0.3, 0.5, 0.1, 0.1);
       // Special speed at curve
       int speed = CURVESPEED;
       setRightMotorAVoltage(speed - u);
