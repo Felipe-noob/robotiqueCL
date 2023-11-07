@@ -15,8 +15,10 @@
 
 #define DT 50 // sampling period in milliseconds
 
-MeRGBLineFollower RGBLineFollower(PORT_8,1);
-CentraleUltrasonicSensor ultraSensor(PORT_7);
+MeRGBLineFollower RGBLineFollower(PORT_7,1);
+CentraleUltrasonicSensor ultraSensor(PORT_8);
+CentraleUltrasonicSensor carSensor(PORT_6);
+
 Robot Corno(&RGBLineFollower, &ultraSensor, DT);
 
 void setup()
