@@ -136,8 +136,8 @@ void Robot::routine(){
     case STRAIGHT: {
       const int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
       const int speed = 65;
-      setRightMotorAVoltage(- (speed - u));
-      setLeftMotorAVoltage(speed + u );
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u);
       break;
     }
     
@@ -145,8 +145,8 @@ void Robot::routine(){
       int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
 
       int speed = 50;
-      setRightMotorAVoltage(- (speed - u));
-      setLeftMotorAVoltage(speed + u );
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u);
       break;
     }
 
@@ -154,13 +154,13 @@ void Robot::routine(){
       int u = pid(offset, DT, 0.4, 0.5, 0.1, 0.1);
       // Special speed at curve
       int speed = 40;
-      setRightMotorAVoltage(- (speed - u));
-      setLeftMotorAVoltage(speed + u );
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u);
       break;
     }
 
     case OBSTACLEFOUND: {
-      setRightMotorAVoltage(-110);
+      setRightMotorAVoltage(110);
       setLeftMotorAVoltage(0);
       break;
     }
@@ -169,14 +169,14 @@ void Robot::routine(){
       // When in alternate path, robot goes slower
       int speed = 38;
       int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
-      setRightMotorAVoltage(- (speed - u));
-      setLeftMotorAVoltage(speed + u ); 
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u); 
       break;
     }
 
     case RESUMECOURSE: {
       // Turns violently
-      setRightMotorAVoltage(-140);
+      setRightMotorAVoltage(140);
       setLeftMotorAVoltage(0);
       break;
     }

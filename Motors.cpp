@@ -27,10 +27,11 @@ void setLeftMotorAVoltage(int valeur)
   }
   analogWrite(PWMm1, constrain(abs(valeur), 0, MAXPWM));
 }
+
 // Function for right motor
 void setRightMotorAVoltage(int valeur)
 {
-  if (valeur < 0)
+  if (valeur > 0)
   {
     digitalWrite(BI1m2, 1);
     digitalWrite(BI2m2, 0);
