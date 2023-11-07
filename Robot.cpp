@@ -71,8 +71,8 @@ void Robot::stateTransition(){
       if(obstacleAhead) {
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (abs(offset) > 270 && !curveTimeout && !curveCooldown) {
-        curveTimeout = 6;
+      } else if (abs(offset) > 270 && curveCooldown <= 0) {
+        curveTimeout = 8;
         curveCooldown = 50;
         nextState = CURVE;
       } else {
@@ -86,10 +86,9 @@ void Robot::stateTransition(){
       if(obstacleAhead) {
         curveCount++;
         curveTimeout--;
-        curveTimeout--;
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (curveTimeout){
+      } else if (curveTimeout >= 0){
         // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
@@ -117,7 +116,7 @@ void Robot::stateTransition(){
       // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
       if (offset > 160 && obstacleCooldown <= 0){
         nextState = RESUMECOURSE;
-        exitTimeout = 8;
+        // exitTimeout = 8;
       } else {
         obstacleCooldown--;
         nextState = PATHOBSTACLE;
@@ -125,10 +124,9 @@ void Robot::stateTransition(){
       break;
 
     case RESUMECOURSE:
-      if(exitTimeout){
-        exitTimeout--;
-        nextState = RESUMECOURSE;
-      }else nextState = STRAIGHT;
+      if(abs(offset) <= 40){
+        nextState = STRAIGHT;
+      }else nextState = RESUMECOURSE;
       break;
 
     } // end switch STATE TRANSITION
@@ -145,7 +143,7 @@ void Robot::routine(){
   switch(currState){
     case STRAIGHT: {
       const int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
-      const int speed = 65;
+      const int speed = STRAIGHTSPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
@@ -154,7 +152,7 @@ void Robot::routine(){
     case WAITINGCURVE: {
       int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
 
-      int speed = 50;
+      int speed = WAITINGCURVESPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
@@ -163,7 +161,7 @@ void Robot::routine(){
     case CURVE: {
       int u = pid(offset, DT, 0.4, 0.5, 0.1, 0.1);
       // Special speed at curve
-      int speed = 40;
+      int speed = CURVESPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
@@ -177,7 +175,7 @@ void Robot::routine(){
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
-      int speed = 38;
+      int speed = 0.75 * BASESPEED;
       int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u); 
@@ -186,7 +184,7 @@ void Robot::routine(){
 
     case RESUMECOURSE: {
       // Turns violently
-      setRightMotorAVoltage(140);
+      setRightMotorAVoltage(60);
       setLeftMotorAVoltage(0);
       break;
     }
