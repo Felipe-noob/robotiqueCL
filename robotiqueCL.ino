@@ -41,11 +41,6 @@ void loop()
   // TODO: look up the docs
   Corno.routine();
   Corno.printInfo();
-  // left,right
-  
-  // Serial.print(getPosition1());
-  // Serial.print(",");
-  // Serial.println(getPosition2());
 }
 
 

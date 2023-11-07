@@ -68,18 +68,28 @@ void Robot::stateTransition(){
       break;
     }
     case WAITINGCURVE: {
-      if (abs(offset) > 270 && !curveTimeout && !curveCooldown) {
+      if(obstacleAhead) {
+        curveCooldown--;
+        nextState = OBSTACLEFOUND;
+      } else if (abs(offset) > 270 && !curveTimeout && !curveCooldown) {
         curveTimeout = 6;
         curveCooldown = 50;
         nextState = CURVE;
       } else {
+        curveCooldown--;
         nextState = WAITINGCURVE;
       }
       break;
     }
 
     case CURVE:
-      if (curveTimeout){
+      if(obstacleAhead) {
+        curveCount++;
+        curveTimeout--;
+        curveTimeout--;
+        curveCooldown--;
+        nextState = OBSTACLEFOUND;
+      } else if (curveTimeout){
         // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
@@ -197,6 +207,12 @@ void Robot::checkObstacle(){
 
 
 void Robot::printInfo(){
+  // left,right
+  
+  Serial.print(getPosition1());
+  Serial.print(",");
+  Serial.print(getPosition2());
+  Serial.print(",");
   Serial.print(currState);
   Serial.print(",");
   Serial.println(offset);
