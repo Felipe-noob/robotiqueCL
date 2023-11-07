@@ -39,10 +39,30 @@ void Robot::stateTransition(){
       // State transition to Curve
       // Checks if offset is high enough and if the conditions to transition to CURVE state are set
       const int distance = getPosition1() - leftEncoder;
+      const int lineIndex = curveCount % 4;
+      bool endOfLine =  false;
+
+      switch (lineIndex) {
+        case 0: 
+          endOfLine = distance > 300;
+          break;
+        case 1:
+          endOfLine = distance > 540;
+          break;
+        case 2:
+          endOfLine = distance > 100;
+          break;
+        case 3:
+          endOfLine = distance > 0;
+          break;
+        default:
+          endOfLine = true;
+          break;
+      }
       // State transition to Obstacle found
       if (obstacleAhead) {
         nextState = OBSTACLEFOUND;
-      } else if (distance > 560){
+      } else if (endOfLine){
         nextState = WAITINGCURVE;
         
       } else {
@@ -120,11 +140,11 @@ void Robot::routine(){
 
   switch(currState){
     case STRAIGHT: {
-      int u = pid(offset, DT, false);
+      const int u = pid(offset, DT, false);
 
       // Declaration of SPEED here equals to BASE_SPEED to be able to modify later ( we want to go faster in a straight line, so just modify the speed variable here).
       // Also, by declaring speed here, instead of globally, we limit its scope and any optimization the compiler might try doing.
-      int speed = 70;
+      const int speed = 65;
       setRightMotorAVoltage(- (speed - u));
       setLeftMotorAVoltage(speed + u );
       break;
