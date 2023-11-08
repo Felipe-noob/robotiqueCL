@@ -119,7 +119,7 @@ void Robot::stateTransition(){
         nextState = OBSTACLEFOUND;
       } else {
         nextState = PATHOBSTACLE;
-        obstacleCooldown = 60;
+        obstacleCooldown = 0;
       }
 
       break;
@@ -136,10 +136,21 @@ void Robot::stateTransition(){
       break;
 
     case RESUMECOURSE:
-      if(abs(offset) <= 60){
-        nextState = WAITINGCURVE;
+      if(abs(offset) <= 70){
+        nextState = TRANSITIONPATHCURVE;
       }else nextState = RESUMECOURSE;
       break;
+
+    case TRANSITIONPATHCURVE: {
+      static int timer;
+      if (timer++ < 30) nextState = TRANSITIONPATHCURVE;
+      else{
+        timer = 0;
+        averageOffset = 800;
+        nextState = WAITINGCURVE;
+      } 
+
+    }
 
     } // end switch STATE TRANSITION
 
@@ -197,7 +208,7 @@ void Robot::routine(){
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
-      const int speed = 0.85 * BASESPEED;
+      const int speed = 0.9 * BASESPEED;
       const int u = pid(offset, DT, 0.02, 4, 1, 0.1);
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u); 
@@ -210,6 +221,14 @@ void Robot::routine(){
       setLeftMotorAVoltage(-20);
       break;
     }
+
+    case TRANSITIONPATHCURVE: {
+      const int speed = 40;
+      const int u = pid(offset, DT, 0.021, 4, 0.5, 0);
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u); 
+      break;
+    }
   } // end switch
 
   stateTransition();
@@ -218,7 +237,7 @@ void Robot::routine(){
 
 void Robot::checkObstacle(){
   int distance = FrontObstacleSensor->distanceCm(100);
-  if (distance <= 27) obstacleAhead = true;
+  if (distance <= 23) obstacleAhead = true;
   else obstacleAhead = false;
 }
 
