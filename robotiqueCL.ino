@@ -40,7 +40,7 @@ void loop()
 {
   waitNextPeriod();
   Corno.routine();
-  Corno.printInfo();
+  // Corno.printInfo();
 }
 
 

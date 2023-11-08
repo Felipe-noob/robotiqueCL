@@ -106,7 +106,7 @@ void Robot::stateTransition(){
       curveCooldown--;
       if(obstacleAhead) {
         nextState = OBSTACLEFOUND;
-      } else if(averageOffset < 100) {
+      } else if(averageOffset < 1000) {
         nextState = STRAIGHT;
       } else {
         nextState = AFTERCURVE;
