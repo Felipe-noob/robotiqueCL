@@ -179,9 +179,26 @@ void Robot::routine(){
     case OBSTACLEFOUND: {
       turnLeft();
       turnRight();
-      goStraight(110, 40);
+
+      goStraight(115, 40);
       turnRight();
       turnLeft();
+
+      bool in, out, in2;
+
+      while(in2) {
+        offset = RGBLineFollower->getPositionOffset();
+        setRightMotorAVoltage(60);
+        setLeftMotorAVoltage(0);
+        
+        if (abs(offset) < 200 && !out) {
+          in = true;
+        } else if (in && abs(offset) >= 200) {
+          out = true;
+        } else if (in && out && abs(offset) < 200){
+          in2 = true;
+        }
+      }
       break;
     }
 
@@ -200,7 +217,7 @@ void Robot::routine(){
 
 void Robot::checkObstacle(){
   int distance = FrontObstacleSensor->distanceCm(100);
-  if (distance <= 14) obstacleAhead = true;
+  if (distance <= 16) obstacleAhead = true;
   else obstacleAhead = false;
 }
 
@@ -211,7 +228,7 @@ void Robot::movingAverage(){
 
 void Robot::turnRight(){
   int initial = getPosition1();
-  while(getPosition1() - initial < 165){
+  while(getPosition1() - initial < 161){
     setLeftMotorAVoltage(60);
     setRightMotorAVoltage(0);
   } 
