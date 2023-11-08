@@ -13,7 +13,7 @@
 #include "Robot.h"
 
 
-#define DT 50 // sampling period in milliseconds
+#define DT 30 // sampling period in milliseconds
 
 MeRGBLineFollower RGBLineFollower(PORT_7,1);
 CentraleUltrasonicSensor ultraSensor(PORT_8);
@@ -30,7 +30,6 @@ void setup()
   // initialization of the serial communication.
   Serial.begin(9600);
   Serial.setTimeout(10);
-  Serial.println(Corno.RGBLineFollower->getPositionOffset());
 
   // Led obstacle
   pinMode(LEDPIN, OUTPUT);
@@ -40,7 +39,6 @@ void setup()
 void loop()
 {
   waitNextPeriod();
-  // TODO: look up the docs
   Corno.routine();
   Corno.printInfo();
 }

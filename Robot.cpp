@@ -38,13 +38,13 @@ void Robot::stateTransition(){
 
       switch (lineIndex) {
         case 0: 
-          endOfLine = distance > 100;
+          endOfLine = distance > 200;
           break;
         case 1:
           endOfLine = distance > 0;
           break;
         case 2:
-          endOfLine = distance > 200;
+          endOfLine = distance > 300;
           break;
         case 3:
           endOfLine = distance > 560;
@@ -136,13 +136,13 @@ void Robot::stateTransition(){
 }
 
 void Robot::routine(){
+
   RGBLineFollower->loop();
   checkObstacle();
   offset = RGBLineFollower->getPositionOffset();
-
   switch(currState){
     case STRAIGHT: {
-      const int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
+      const int u = pid(offset, DT, 0.01, 4, 1, 0);
       const int speed = STRAIGHTSPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
@@ -150,18 +150,18 @@ void Robot::routine(){
     }
     
     case WAITINGCURVE: {
-      int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
+      const int u = pid(offset, DT, 0.01, 4, 1, 0.5);
 
-      int speed = WAITINGCURVESPEED;
+      const int speed = WAITINGCURVESPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
     }
 
     case CURVE: {
-      int u = pid(offset, DT, 0.3, 0.5, 0.1, 0.1);
+      const int u = pid(offset, DT, 0.03, 5, 1, 1);
       // Special speed at curve
-      int speed = CURVESPEED;
+      const int speed = CURVESPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
@@ -175,8 +175,8 @@ void Robot::routine(){
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
-      int speed = 0.75 * BASESPEED;
-      int u = pid(offset, DT, 0.1, 0.4, 0.1, 0);
+      const int speed = 0.75 * BASESPEED;
+      const int u = pid(offset, DT, 0.01, 4, 1, 0.1);
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u); 
       break;
@@ -189,6 +189,7 @@ void Robot::routine(){
       break;
     }
   } // end switch
+
   stateTransition();
 }
 
@@ -196,7 +197,7 @@ void Robot::routine(){
 void Robot::checkObstacle(){
   static int activateSensor;
   if (activateSensor == 2){
-    int distance = FrontObstacleSensor->distanceCm();
+    int distance = FrontObstacleSensor->distanceCm(100);
     if (distance <= 24) obstacleAhead = true;
     else obstacleAhead = false;
     activateSensor = 0;
@@ -212,6 +213,8 @@ void Robot::printInfo(){
   Serial.print(getPosition2());
   Serial.print(",");
   Serial.print(currState);
+  Serial.print(",");
+  Serial.print(curveCount);
   Serial.print(",");
   Serial.println(offset);
 }
