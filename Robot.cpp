@@ -12,6 +12,7 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   leftEncoder = 0;
   rightEncoder = 0;
   curveCount = 0;
+  averageOffset = 0;
 }
 
 void Robot::init(){
@@ -44,7 +45,7 @@ void Robot::stateTransition(){
           endOfLine = distance > 0;
           break;
         case 2:
-          endOfLine = distance > 300;
+          endOfLine = distance > 200;
           break;
         case 3:
           endOfLine = distance > 560;
@@ -71,9 +72,9 @@ void Robot::stateTransition(){
       if(obstacleAhead) {
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (abs(offset) > 270 && curveCooldown <= 0) {
-        curveTimeout = 8;
-        curveCooldown = 50;
+      } else if (abs(offset) > 400 && curveCooldown <= 0) {
+        curveTimeout = 13;
+        curveCooldown = 80;
         nextState = CURVE;
       } else {
         curveCooldown--;
@@ -97,17 +98,27 @@ void Robot::stateTransition(){
         leftEncoder = getPosition1();
         rightEncoder = getPosition2();
         curveCount++;
-        nextState = STRAIGHT;
+        nextState = AFTERCURVE;
       }
       break;
 
+    case AFTERCURVE: 
+      curveCooldown--;
+      if(obstacleAhead) {
+        nextState = OBSTACLEFOUND;
+      } else if(averageOffset < 100) {
+        nextState = STRAIGHT;
+      } else {
+        nextState = AFTERCURVE;
+      }
+      break;
     
     case OBSTACLEFOUND:
       // Until the detector stops detecting an obstacle, the robot will stay in this state, making the slight curve.
       if (obstacleAhead) nextState = OBSTACLEFOUND;
       else {
         nextState = PATHOBSTACLE;
-        obstacleCooldown = 40;
+        obstacleCooldown = 60;
       }
 
       break;
@@ -125,7 +136,7 @@ void Robot::stateTransition(){
 
     case RESUMECOURSE:
       if(abs(offset) <= 40){
-        nextState = STRAIGHT;
+        nextState = WAITINGCURVE;
       }else nextState = RESUMECOURSE;
       break;
 
@@ -140,6 +151,8 @@ void Robot::routine(){
   RGBLineFollower->loop();
   checkObstacle();
   offset = RGBLineFollower->getPositionOffset();
+  movingAverage();
+
   switch(currState){
     case STRAIGHT: {
       const int u = pid(offset, DT, 0.01, 4, 1, 0);
@@ -162,6 +175,14 @@ void Robot::routine(){
       const int u = pid(offset, DT, 0.03, 5, 1, 1);
       // Special speed at curve
       const int speed = CURVESPEED;
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u);
+      break;
+    }
+
+    case AFTERCURVE: {
+      const int u = pid(offset, DT, 0.01, 4, 1, 0.5);
+      const int speed = WAITINGCURVESPEED;
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u);
       break;
@@ -204,6 +225,10 @@ void Robot::checkObstacle(){
   } else activateSensor++;
 }
 
+void Robot::movingAverage(){
+  const float a = 0.9;
+  averageOffset = (a*averageOffset + abs(offset));
+}
 
 void Robot::printInfo(){
   // left,right
@@ -216,5 +241,9 @@ void Robot::printInfo(){
   Serial.print(",");
   Serial.print(curveCount);
   Serial.print(",");
-  Serial.println(offset);
+  Serial.print(offset);
+  Serial.print(",");
+  Serial.print(abs(offset));
+  Serial.print(",");
+  Serial.println(averageOffset);
 }

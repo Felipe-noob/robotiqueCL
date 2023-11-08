@@ -16,6 +16,7 @@ enum RobotState {
   STRAIGHT,
   WAITINGCURVE,
   CURVE,
+  AFTERCURVE,
   OBSTACLEFOUND,
   PATHOBSTACLE,
   RESUMECOURSE
@@ -26,6 +27,7 @@ class Robot {
   private:
   RobotState currState, nextState, prevState;
   int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout, leftEncoder, rightEncoder, curveCount;
+  float averageOffset;
   bool obstacleAhead;
     
   public:
@@ -57,6 +59,11 @@ class Robot {
   */
   void stateTransition();
 
+
+  /*
+  * Helps determine if the robot has stabilized
+  */
+  void movingAverage();
 
   /*
   * Prints stuff
