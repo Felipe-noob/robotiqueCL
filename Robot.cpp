@@ -114,36 +114,12 @@ void Robot::stateTransition(){
       break;
     
     case OBSTACLEFOUND:
-      // Until the detector stops detecting an obstacle, the robot will stay in this state, making the slight curve.
-      if(obstacleAhead || abs(offset) > 90) {
-        nextState = OBSTACLEFOUND;
-      } else {
-        nextState = PATHOBSTACLE;
-        obstacleCooldown = 0;
-      }
-
-      break;
-
-    case PATHOBSTACLE:
-      // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
-      if (offset < -160 && obstacleCooldown <= 0){
-        nextState = RESUMECOURSE;
-        // exitTimeout = 8;
-      } else {
-        obstacleCooldown--;
-        nextState = PATHOBSTACLE;
-      }
-      break;
-
-    case RESUMECOURSE:
-      if(abs(offset) <= 70){
-        nextState = TRANSITIONPATHCURVE;
-      }else nextState = RESUMECOURSE;
+      nextState = TRANSITIONPATHCURVE;
       break;
 
     case TRANSITIONPATHCURVE: {
       static int timer;
-      if (timer++ < 30) nextState = TRANSITIONPATHCURVE;
+      if (timer++ < 5) nextState = TRANSITIONPATHCURVE;
       else{
         timer = 0;
         averageOffset = 800;
@@ -203,33 +179,9 @@ void Robot::routine(){
     case OBSTACLEFOUND: {
       turnLeft();
       turnRight();
-      goStraight(120,55);
+      goStraight(110, 40);
       turnRight();
       turnLeft();
-
-      while(true){
-        setRightMotorAVoltage(0);
-        setLeftMotorAVoltage(0);
-        Serial.println(getPosition2());
-      }
-      // setRightMotorAVoltage(60);
-      // setLeftMotorAVoltage(-20);
-      break;
-    }
-
-    case PATHOBSTACLE: {
-      // When in alternate path, robot goes slower
-      const int speed = 0.9 * BASESPEED;
-      const int u = pid(offset, DT, 0.02, 4, 1, 0.1);
-      setRightMotorAVoltage(speed - u);
-      setLeftMotorAVoltage(speed + u); 
-      break;
-    }
-
-    case RESUMECOURSE: {
-      // Turns violently
-      setRightMotorAVoltage(60);
-      setLeftMotorAVoltage(-20);
       break;
     }
 
@@ -248,7 +200,7 @@ void Robot::routine(){
 
 void Robot::checkObstacle(){
   int distance = FrontObstacleSensor->distanceCm(100);
-  if (distance <= 20) obstacleAhead = true;
+  if (distance <= 14) obstacleAhead = true;
   else obstacleAhead = false;
 }
 
@@ -259,7 +211,7 @@ void Robot::movingAverage(){
 
 void Robot::turnRight(){
   int initial = getPosition1();
-  while(getPosition1() - initial < 160){
+  while(getPosition1() - initial < 165){
     setLeftMotorAVoltage(60);
     setRightMotorAVoltage(0);
   } 
@@ -268,7 +220,7 @@ void Robot::turnRight(){
 
 void Robot::turnLeft(){
   int initial = getPosition2();
-  while(getPosition2() - initial < 160){
+  while(getPosition2() - initial < 162){
     setLeftMotorAVoltage(0);
     setRightMotorAVoltage(60);
   } 

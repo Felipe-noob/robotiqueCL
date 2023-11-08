@@ -39,7 +39,6 @@ void setup()
 void loop()
 {
   waitNextPeriod();
-  
   Corno.routine();
   // Corno.printInfo();
 }
