@@ -2,7 +2,7 @@
 
 Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime){
   // Initial state Straight
-  currState = STRAIGHT;
+  currState = AFTERCURVE;
   offset = 0;
   RGBLineFollower = lineFollower;
   FrontObstacleSensor = obstacleSensor;
@@ -12,7 +12,7 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   leftEncoder = 0;
   rightEncoder = 0;
   curveCount = 0;
-  averageOffset = 0;
+  averageOffset = 1200;
 }
 
 void Robot::init(){
@@ -72,7 +72,7 @@ void Robot::stateTransition(){
       if(obstacleAhead) {
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (abs(offset) > 400 && curveCooldown <= 0) {
+      } else if (averageOffset > 1400 && curveCooldown <= 0) {
         curveTimeout = 13;
         curveCooldown = 80;
         nextState = CURVE;
