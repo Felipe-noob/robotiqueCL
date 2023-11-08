@@ -39,7 +39,7 @@ void Robot::stateTransition(){
 
       switch (lineIndex) {
         case 0: 
-          endOfLine = distance > 250;
+          endOfLine = distance > 200;
           break;
         case 1:
           endOfLine = distance > 0;
@@ -115,8 +115,9 @@ void Robot::stateTransition(){
     
     case OBSTACLEFOUND:
       // Until the detector stops detecting an obstacle, the robot will stay in this state, making the slight curve.
-      if (obstacleAhead) nextState = OBSTACLEFOUND;
-      else {
+      if(obstacleAhead || abs(offset) > 90) {
+        nextState = OBSTACLEFOUND;
+      } else {
         nextState = PATHOBSTACLE;
         obstacleCooldown = 60;
       }
@@ -125,7 +126,7 @@ void Robot::stateTransition(){
 
     case PATHOBSTACLE:
       // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
-      if (offset > 160 && obstacleCooldown <= 0){
+      if (offset < -160 && obstacleCooldown <= 0){
         nextState = RESUMECOURSE;
         // exitTimeout = 8;
       } else {
@@ -135,7 +136,7 @@ void Robot::stateTransition(){
       break;
 
     case RESUMECOURSE:
-      if(abs(offset) <= 40){
+      if(abs(offset) <= 60){
         nextState = WAITINGCURVE;
       }else nextState = RESUMECOURSE;
       break;
@@ -189,15 +190,15 @@ void Robot::routine(){
     }
 
     case OBSTACLEFOUND: {
-      setRightMotorAVoltage(110);
-      setLeftMotorAVoltage(0);
+      setRightMotorAVoltage(60);
+      setLeftMotorAVoltage(-20);
       break;
     }
 
     case PATHOBSTACLE: {
       // When in alternate path, robot goes slower
-      const int speed = 0.75 * BASESPEED;
-      const int u = pid(offset, DT, 0.01, 4, 1, 0.1);
+      const int speed = 0.85 * BASESPEED;
+      const int u = pid(offset, DT, 0.02, 4, 1, 0.1);
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u); 
       break;
@@ -206,7 +207,7 @@ void Robot::routine(){
     case RESUMECOURSE: {
       // Turns violently
       setRightMotorAVoltage(60);
-      setLeftMotorAVoltage(0);
+      setLeftMotorAVoltage(-20);
       break;
     }
   } // end switch
@@ -216,13 +217,9 @@ void Robot::routine(){
 
 
 void Robot::checkObstacle(){
-  static int activateSensor;
-  if (activateSensor == 2){
-    int distance = FrontObstacleSensor->distanceCm(100);
-    if (distance <= 24) obstacleAhead = true;
-    else obstacleAhead = false;
-    activateSensor = 0;
-  } else activateSensor++;
+  int distance = FrontObstacleSensor->distanceCm(100);
+  if (distance <= 27) obstacleAhead = true;
+  else obstacleAhead = false;
 }
 
 void Robot::movingAverage(){
