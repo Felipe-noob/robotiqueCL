@@ -201,8 +201,19 @@ void Robot::routine(){
     }
 
     case OBSTACLEFOUND: {
-      setRightMotorAVoltage(60);
-      setLeftMotorAVoltage(-20);
+      turnLeft();
+      turnRight();
+      goStraight(120,55);
+      turnRight();
+      turnLeft();
+
+      while(true){
+        setRightMotorAVoltage(0);
+        setLeftMotorAVoltage(0);
+        Serial.println(getPosition2());
+      }
+      // setRightMotorAVoltage(60);
+      // setLeftMotorAVoltage(-20);
       break;
     }
 
@@ -237,13 +248,39 @@ void Robot::routine(){
 
 void Robot::checkObstacle(){
   int distance = FrontObstacleSensor->distanceCm(100);
-  if (distance <= 23) obstacleAhead = true;
+  if (distance <= 20) obstacleAhead = true;
   else obstacleAhead = false;
 }
 
 void Robot::movingAverage(){
   const float a = 0.9;
   averageOffset = (a*averageOffset + abs(offset));
+}
+
+void Robot::turnRight(){
+  int initial = getPosition1();
+  while(getPosition1() - initial < 160){
+    setLeftMotorAVoltage(60);
+    setRightMotorAVoltage(0);
+  } 
+  setLeftMotorAVoltage(0);
+}
+
+void Robot::turnLeft(){
+  int initial = getPosition2();
+  while(getPosition2() - initial < 160){
+    setLeftMotorAVoltage(0);
+    setRightMotorAVoltage(60);
+  } 
+  setRightMotorAVoltage(0);
+}
+
+void Robot::goStraight(int decoderNumber, int speed){
+  int currPos = getPosition1();
+  while((getPosition1() - currPos) <= decoderNumber){
+    setLeftMotorAVoltage(speed);
+    setRightMotorAVoltage(speed);
+  }
 }
 
 void Robot::printInfo(){
