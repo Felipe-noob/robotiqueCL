@@ -122,10 +122,10 @@ void Robot::stateTransition(){
     }
     case TRANSITIONPATHCURVE: {
       static int timer;
-      if (timer++ < 5) nextState = TRANSITIONPATHCURVE;
+      if (timer++ < 9) nextState = TRANSITIONPATHCURVE;
       else{
         timer = 0;
-        averageOffset = 800;
+        averageOffset = 0;
         nextState = WAITINGCURVE;
       } 
       break;
@@ -210,15 +210,15 @@ void Robot::routine(){
       break;
     }
     case TRANSITIONPATHCURVE: {
-      const int speed = 60;
+      const int speed = 70;
       const int u = pid(offset, DT, 0.021, 4, 0.5, 0);
-      setRightMotorAVoltage(speed - u);
+      setRightMotorAVoltage(speed - u + 30);
       setLeftMotorAVoltage(speed + u); 
       break;
     }
     case PATHOBSTACLE: {
       const int u = pid(offset, DT, 0.01, 4, 1, 1);
-      const int speed = 40;
+      const int speed = 50;
       setRightMotorAVoltage(speed -u );
       setLeftMotorAVoltage(speed +u );
       break;
