@@ -113,10 +113,13 @@ void Robot::stateTransition(){
       }
       break;
     
-    case OBSTACLEFOUND:
-      nextState = TRANSITIONPATHCURVE;
+    case OBSTACLEFOUND: {
+      if (obstacleAhead) nextState = OBSTACLEFOUND;
+      else nextState = STABILIZE;
+      
+      // nextState = TRANSITIONPATHCURVE;
       break;
-
+    }
     case TRANSITIONPATHCURVE: {
       static int timer;
       if (timer++ < 5) nextState = TRANSITIONPATHCURVE;
@@ -125,7 +128,17 @@ void Robot::stateTransition(){
         averageOffset = 800;
         nextState = WAITINGCURVE;
       } 
+      break;
+    }
 
+    case STABILIZE: {
+      if (abs(offset >= 60)) nextState = STABILIZE;
+      else nextState = PATHOBSTACLE;
+      break;
+    }
+
+    case PATHOBSTACLE: {
+      
     }
 
     } // end switch STATE TRANSITION
@@ -175,38 +188,30 @@ void Robot::routine(){
       setLeftMotorAVoltage(speed + u);
       break;
     }
-
-    case OBSTACLEFOUND: {
-      turnLeft();
-      turnRight();
-
-      goStraight(115, 40);
-      turnRight();
-      turnLeft();
-
-      bool in, out, in2;
-
-      while(in2) {
-        offset = RGBLineFollower->getPositionOffset();
-        setRightMotorAVoltage(60);
-        setLeftMotorAVoltage(0);
-        
-        if (abs(offset) < 200 && !out) {
-          in = true;
-        } else if (in && abs(offset) >= 200) {
-          out = true;
-        } else if (in && out && abs(offset) < 200){
-          in2 = true;
-        }
-      }
+    case STABILIZE: {
+      setLeftMotorAVoltage(-50);
+      setRightMotorAVoltage(30);
       break;
     }
-
+    case OBSTACLEFOUND: {
+      setLeftMotorAVoltage(-50);
+      setRightMotorAVoltage(30);
+      // turnLeft();
+      // turnRight();
+      break;
+    }
     case TRANSITIONPATHCURVE: {
       const int speed = 40;
       const int u = pid(offset, DT, 0.021, 4, 0.5, 0);
       setRightMotorAVoltage(speed - u);
       setLeftMotorAVoltage(speed + u); 
+      break;
+    }
+    case PATHOBSTACLE: {
+      const int u = pid(offset, DT, 0.03, 4, 1, 1);
+      const int speed = 40;
+      setRightMotorAVoltage(speed -u );
+      setLeftMotorAVoltage(speed +u );
       break;
     }
   } // end switch
@@ -236,12 +241,15 @@ void Robot::turnRight(){
 }
 
 void Robot::turnLeft(){
-  int initial = getPosition2();
-  while(getPosition2() - initial < 162){
-    setLeftMotorAVoltage(0);
-    setRightMotorAVoltage(60);
-  } 
-  setRightMotorAVoltage(0);
+  static int turns;
+  for(int i = 0; i < 10 ; i++){
+    setLeftMotorAVoltage(-40);
+    setRightMotorAVoltage(30);
+    delay(50);
+  }
+  
+
+  turns = 0;
 }
 
 void Robot::goStraight(int decoderNumber, int speed){
