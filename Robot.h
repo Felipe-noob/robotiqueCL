@@ -7,7 +7,7 @@
 #include "pid.h"
 
 #define LEDPIN 2
-#define STRAIGHTSPEED 130
+#define STRAIGHTSPEED 200
 #define WAITINGCURVESPEED 60
 #define CURVESPEED 40
 #define BASESPEED 50

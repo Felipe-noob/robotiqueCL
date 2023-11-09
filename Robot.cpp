@@ -56,16 +56,16 @@ void Robot::stateTransition(){
 
       switch (lineIndex) {
         case 0: 
-          endOfLine = distance > 200;
+          endOfLine = distance > 180;
           break;
         case 1:
           endOfLine = distance > 0;
           break;
         case 2:
-          endOfLine = distance > 250;
+          endOfLine = distance > 220;
           break;
         case 3:
-          endOfLine = distance > 560;
+          endOfLine = distance > 480;
           break;
         default:
           endOfLine = true;
@@ -137,7 +137,7 @@ void Robot::stateTransition(){
       } else if (carOnTheRight){
         prevState = AFTERCURVE;
         nextState = VOITUREFOUND;
-      } else if(averageOffset < 1000) {
+      } else if(averageOffset < 1100) {
         nextState = STRAIGHT;
       } else if (averageOffset > 1400 && curveCooldown <= 0) { // TODO: verify if this condition works
         curveTimeout = 13;
