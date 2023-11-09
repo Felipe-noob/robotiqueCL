@@ -120,17 +120,6 @@ void Robot::stateTransition(){
       // nextState = TRANSITIONPATHCURVE;
       break;
     }
-    case TRANSITIONPATHCURVE: {
-      static int timer;
-      if (timer++ < 6) nextState = TRANSITIONPATHCURVE;
-      else{
-        timer = 0;
-        averageOffset = 0;
-        curveCooldown = 12;
-        nextState = WAITINGCURVE;
-      } 
-      break;
-    }
 
     case STABILIZE: {
       if (abs(offset >= 80)) nextState = STABILIZE;
@@ -145,13 +134,24 @@ void Robot::stateTransition(){
       // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
       if (offset < -160 && obstacleCooldown <= 0){
         nextState = TRANSITIONPATHCURVE;
-        exitTimeout = 8;
       } else {
         obstacleCooldown--;
         nextState = PATHOBSTACLE;
       }
       break;
-    } // end switch STATE TRANSITION
+      
+    case TRANSITIONPATHCURVE: {
+      static int timer;
+      if (timer++ < 6) nextState = TRANSITIONPATHCURVE;
+      else{
+        timer = 0;
+        averageOffset = -6000;
+        curveCooldown = 18;
+        nextState = WAITINGCURVE;
+      } 
+      break;
+    }
+  } // end switch STATE TRANSITION
 
   prevState = currState;
   currState = nextState;   
@@ -198,28 +198,32 @@ void Robot::routine(){
       setLeftMotorAVoltage(speed + u);
       break;
     }
-    case STABILIZE: {
-      setLeftMotorAVoltage(-45);
-      setRightMotorAVoltage(30);
-      break;
-    }
+
     case OBSTACLEFOUND: {
       setLeftMotorAVoltage(-50);
       setRightMotorAVoltage(30);
       break;
     }
-    case TRANSITIONPATHCURVE: {
-      const int speed = 50;
-      const int u = pid(offset, DT, 0.021, 4, 0.5, 0);
-      setRightMotorAVoltage(speed - u + 35);
-      setLeftMotorAVoltage(speed + u ); 
+
+    case STABILIZE: {
+      setLeftMotorAVoltage(-45);
+      setRightMotorAVoltage(30);
       break;
     }
+
     case PATHOBSTACLE: {
       const int u = pid(offset, DT, 0.01, 5, 1, 1);
       const int speed = 50;
       setRightMotorAVoltage(speed -u );
       setLeftMotorAVoltage(speed +u );
+      break;
+    }
+
+    case TRANSITIONPATHCURVE: {
+      const int speed = 50;
+      const int u = pid(offset, DT, 0.021, 4, 0.5, 0);
+      setRightMotorAVoltage(speed - u + 35);
+      setLeftMotorAVoltage(speed + u ); 
       break;
     }
   } // end switch
