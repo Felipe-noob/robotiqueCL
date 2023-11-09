@@ -2,7 +2,7 @@
 
 Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, CentraleUltrasonicSensor *carSensor, int samplingTime){
   // Initial state Straight
-  currState = WAITINGCURVE;
+  currState = INITIALSTATE;
   offset = 0;
 
   RGBLineFollower = lineFollower;
@@ -35,6 +35,17 @@ void Robot::init(){
 void Robot::stateTransition(){
 
   switch(currState){
+
+    case INITIALSTATE: {
+      static int timer;
+
+      if(timer++ < 20) {
+        nextState = INITIALSTATE;
+      } else {
+        nextState = WAITINGCURVE;
+      }
+      break;
+    }
 
     case STRAIGHT:{
       // State transition to Curve
@@ -199,6 +210,15 @@ void Robot::routine(){
   movingAverage();
 
   switch(currState){
+
+    case INITIALSTATE: {
+      const int u = pid(offset, DT, 0.01, 4, 1, 0);
+      const int speed = 100;
+      setRightMotorAVoltage(speed - u);
+      setLeftMotorAVoltage(speed + u);
+      break;
+    }
+
     case STRAIGHT: {
       const int u = pid(offset, DT, 0.01, 4, 1, 0);
       const int speed = STRAIGHTSPEED;

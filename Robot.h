@@ -13,6 +13,7 @@
 #define BASESPEED 50
 
 enum RobotState {
+  INITIALSTATE,
   STRAIGHT,
   WAITINGCURVE,
   CURVE,
