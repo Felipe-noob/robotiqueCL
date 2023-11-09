@@ -205,8 +205,6 @@ void Robot::routine(){
     case OBSTACLEFOUND: {
       setLeftMotorAVoltage(-50);
       setRightMotorAVoltage(30);
-      // turnLeft();
-      // turnRight();
       break;
     }
     case TRANSITIONPATHCURVE: {
@@ -247,18 +245,6 @@ void Robot::turnRight(){
     setRightMotorAVoltage(0);
   } 
   setLeftMotorAVoltage(0);
-}
-
-void Robot::turnLeft(){
-  static int turns;
-  for(int i = 0; i < 10 ; i++){
-    setLeftMotorAVoltage(-40);
-    setRightMotorAVoltage(30);
-    delay(50);
-  }
-  
-
-  turns = 0;
 }
 
 void Robot::goStraight(int decoderNumber, int speed){

@@ -71,11 +71,6 @@ class Robot {
   */
   void turnRight();
 
-  /*
-  * Turns 90 degrees to the left
-  */
-  void turnLeft();
-
   void goStraight(int decoderNumber, int speed);
 
   /*
