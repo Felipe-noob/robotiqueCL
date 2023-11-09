@@ -20,7 +20,8 @@ enum RobotState {
   OBSTACLEFOUND,
   TRANSITIONPATHCURVE,
   PATHOBSTACLE,
-  STABILIZE
+  STABILIZE,
+  VOITUREFOUND
 };
 
 
@@ -29,14 +30,14 @@ class Robot {
   RobotState currState, nextState, prevState;
   int DT, curveTimeout, curveCooldown, obstacleCooldown, exitTimeout, leftEncoder, rightEncoder, curveCount;
   float averageOffset;
-  bool obstacleAhead;
+  bool obstacleAhead, carOnTheRight;
     
   public:
   MeRGBLineFollower *RGBLineFollower;
-  CentraleUltrasonicSensor *FrontObstacleSensor;
+  CentraleUltrasonicSensor *FrontObstacleSensor, *RightCarSensor;
   int16_t offset;
 
-  Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime);
+  Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, CentraleUltrasonicSensor *carSensor, int samplingTime);
 
   /*
   * Initializes Motors, Encoders and sets up the RGB Line Follower
@@ -47,6 +48,12 @@ class Robot {
   * Checks wether it has obstacle or not. Also counts as 
   */
   void checkObstacle();
+
+
+  /*
+  * Checks wether it has voiture or not. Also counts as 
+  */
+  void checkVoiture();
 
   /*
   * Main routine. Robot acts accordingly with its states.

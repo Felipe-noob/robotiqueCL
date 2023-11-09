@@ -1,11 +1,14 @@
 #include "Robot.h"
 
-Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, int samplingTime){
+Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacleSensor, CentraleUltrasonicSensor *carSensor, int samplingTime){
   // Initial state Straight
   currState = WAITINGCURVE;
   offset = 0;
+
   RGBLineFollower = lineFollower;
   FrontObstacleSensor = obstacleSensor;
+  RightCarSensor = carSensor;
+
   DT = samplingTime;
   curveTimeout = 0;
   curveCooldown = 0;
@@ -13,6 +16,9 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   rightEncoder = 0;
   curveCount = 0;
   averageOffset = 0;
+
+  carOnTheRight = 0;
+
 }
 
 void Robot::init(){
@@ -57,7 +63,11 @@ void Robot::stateTransition(){
       // State transition to Obstacle found
       if (obstacleAhead) {
         nextState = OBSTACLEFOUND;
-      } else if (endOfLine){
+      } else if (carOnTheRight){
+        prevState = STRAIGHT;
+        nextState = VOITUREFOUND;
+      }
+      else if (endOfLine){
         nextState = WAITINGCURVE;
         
       } else {
@@ -72,7 +82,11 @@ void Robot::stateTransition(){
       if(obstacleAhead) {
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (averageOffset > 1400 && curveCooldown <= 0) {
+      } else if (carOnTheRight){
+        prevState = WAITINGCURVE;
+        nextState = VOITUREFOUND;
+      }
+      else if (averageOffset > 1400 && curveCooldown <= 0) {
         curveTimeout = 13;
         curveCooldown = 80;
         nextState = CURVE;
@@ -89,7 +103,11 @@ void Robot::stateTransition(){
         curveTimeout--;
         curveCooldown--;
         nextState = OBSTACLEFOUND;
-      } else if (curveTimeout >= 0){
+      } else if (carOnTheRight){
+        prevState = CURVE;
+        nextState = VOITUREFOUND;
+      }
+      else if (curveTimeout >= 0){
         // keeps on curve until timeout ends
         curveTimeout--;
         curveCooldown--;
@@ -106,7 +124,11 @@ void Robot::stateTransition(){
       curveCooldown--;
       if(obstacleAhead) {
         nextState = OBSTACLEFOUND;
-      } else if(averageOffset < 1000) {
+      } else if (carOnTheRight){
+        prevState = AFTERCURVE;
+        nextState = VOITUREFOUND;
+      }
+      else if(averageOffset < 1000) {
         nextState = STRAIGHT;
       } else {
         nextState = AFTERCURVE;
@@ -150,9 +172,18 @@ void Robot::stateTransition(){
         nextState = PATHOBSTACLE;
       }
       break;
+
+    
+    case VOITUREFOUND:
+      if (carOnTheRight) nextState = VOITUREFOUND;
+      else {
+        delay(2000);
+        nextState = prevState;
+        }
+      break;
     } // end switch STATE TRANSITION
 
-  prevState = currState;
+  
   currState = nextState;   
 }
 
@@ -160,6 +191,7 @@ void Robot::routine(){
 
   RGBLineFollower->loop();
   checkObstacle();
+  checkVoiture();
   offset = RGBLineFollower->getPositionOffset();
   movingAverage();
 
@@ -223,6 +255,11 @@ void Robot::routine(){
       setLeftMotorAVoltage(speed +u );
       break;
     }
+
+    case VOITUREFOUND: {
+      setRightMotorAVoltage(0);
+      setLeftMotorAVoltage(0);
+    }
   } // end switch
 
   stateTransition();
@@ -233,6 +270,12 @@ void Robot::checkObstacle(){
   int distance = FrontObstacleSensor->distanceCm(100);
   if (distance <= 16) obstacleAhead = true;
   else obstacleAhead = false;
+}
+
+void Robot::checkVoiture(){
+  int distance = RightCarSensor->distanceCm(90);
+  if (distance <= 25) carOnTheRight = true;
+  else carOnTheRight = false;
 }
 
 void Robot::movingAverage(){
