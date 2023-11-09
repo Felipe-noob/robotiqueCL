@@ -85,8 +85,7 @@ void Robot::stateTransition(){
       } else if (carOnTheRight){
         prevState = WAITINGCURVE;
         nextState = VOITUREFOUND;
-      }
-      else if (averageOffset > 1400 && curveCooldown <= 0) {
+      } else if (averageOffset > 1400 && curveCooldown <= 0) {
         curveTimeout = 13;
         curveCooldown = 80;
         nextState = CURVE;
@@ -127,9 +126,12 @@ void Robot::stateTransition(){
       } else if (carOnTheRight){
         prevState = AFTERCURVE;
         nextState = VOITUREFOUND;
-      }
-      else if(averageOffset < 1000) {
+      } else if(averageOffset < 1000) {
         nextState = STRAIGHT;
+      } else if (averageOffset > 1400 && curveCooldown <= 0) { // TODO: verify if this condition works
+        curveTimeout = 13;
+        curveCooldown = 80;
+        nextState = CURVE;
       } else {
         nextState = AFTERCURVE;
       }
