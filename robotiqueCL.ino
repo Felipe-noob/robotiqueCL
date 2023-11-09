@@ -19,7 +19,7 @@ MeRGBLineFollower RGBLineFollower(PORT_7,1);
 CentraleUltrasonicSensor ultraSensor(PORT_8);
 CentraleUltrasonicSensor carSensor(PORT_6);
 
-Robot Corno(&RGBLineFollower, &ultraSensor, DT);
+Robot Corno(&RGBLineFollower, &ultraSensor, &carSensor,DT);
 
 void setup()
 {
