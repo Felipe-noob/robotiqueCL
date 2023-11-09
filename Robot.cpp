@@ -175,9 +175,9 @@ void Robot::stateTransition(){
 
     
     case VOITUREFOUND:
-      if (carOnTheRight) nextState = VOITUREFOUND;
+      if (carOnTheRight || obstacleAhead) nextState = VOITUREFOUND;
       else {
-        delay(2000);
+        delay(100);
         nextState = prevState;
         }
       break;
@@ -274,7 +274,7 @@ void Robot::checkObstacle(){
 
 void Robot::checkVoiture(){
   int distance = RightCarSensor->distanceCm(90);
-  if (distance <= 25) carOnTheRight = true;
+  if (distance <= 30) carOnTheRight = true;
   else carOnTheRight = false;
 }
 
