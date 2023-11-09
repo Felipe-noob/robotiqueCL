@@ -15,7 +15,7 @@ Robot::Robot(MeRGBLineFollower *lineFollower, CentraleUltrasonicSensor *obstacle
   leftEncoder = 0;
   rightEncoder = 0;
   curveCount = 0;
-  averageOffset = 0;
+  averageOffset = -1000;
 
   carOnTheRight = 0;
 
@@ -96,7 +96,7 @@ void Robot::stateTransition(){
       } else if (carOnTheRight){
         prevState = WAITINGCURVE;
         nextState = VOITUREFOUND;
-      } else if (averageOffset > 1400 && curveCooldown <= 0) {
+      } else if (averageOffset > 1600 && curveCooldown <= 0) {
         curveTimeout = 13;
         curveCooldown = 80;
         nextState = CURVE;
