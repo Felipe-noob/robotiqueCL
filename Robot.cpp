@@ -165,7 +165,7 @@ void Robot::stateTransition(){
 		case VOITUREFOUND: {
       if (carOnTheRight || obstacleAhead) nextState = VOITUREFOUND;
       else {
-        delay(100);
+        delay(600);
         nextState = prevState;
         }
       break;
@@ -173,13 +173,13 @@ void Robot::stateTransition(){
 
     case TRANSITIONPATHCURVE: {
       static int timer;
-      if (timer++ < 6) nextState = TRANSITIONPATHCURVE;
+      if (timer++ < 9) nextState = TRANSITIONPATHCURVE;
       else{
         timer = 0;
         averageOffset = -6000;
-        curveCooldown = 18;
+        curveCooldown = 15;
         nextState = WAITINGCURVE;
-      } 
+      }  
       break;
     }
   } // end switch STATE TRANSITION
@@ -277,7 +277,7 @@ void Robot::checkObstacle(){
 
 void Robot::checkVoiture(){
   int distance = RightCarSensor->distanceCm(90);
-  if (distance <= 30) carOnTheRight = true;
+  if (distance <= 27) carOnTheRight = true;
   else carOnTheRight = false;
 }
 
