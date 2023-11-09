@@ -133,14 +133,23 @@ void Robot::stateTransition(){
 
     case STABILIZE: {
       if (abs(offset >= 60)) nextState = STABILIZE;
-      else nextState = PATHOBSTACLE;
+      else {
+        obstacleCooldown = 40;
+        nextState = PATHOBSTACLE;
+        }
       break;
     }
 
-    case PATHOBSTACLE: {
-      
-    }
-
+    case PATHOBSTACLE:
+      // const int curveIndex = (getPosition1() - leftTurns) - (getPosition2() - rightTurns);
+      if (offset < -160 && obstacleCooldown <= 0){
+        nextState = TRANSITIONPATHCURVE;
+        exitTimeout = 8;
+      } else {
+        obstacleCooldown--;
+        nextState = PATHOBSTACLE;
+      }
+      break;
     } // end switch STATE TRANSITION
 
   prevState = currState;
@@ -208,7 +217,7 @@ void Robot::routine(){
       break;
     }
     case PATHOBSTACLE: {
-      const int u = pid(offset, DT, 0.03, 4, 1, 1);
+      const int u = pid(offset, DT, 0.01, 4, 1, 1);
       const int speed = 40;
       setRightMotorAVoltage(speed -u );
       setLeftMotorAVoltage(speed +u );
